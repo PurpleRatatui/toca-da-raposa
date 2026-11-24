@@ -476,6 +476,14 @@
   .chat-consent input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--orange); flex: none; }
   .chat-book { margin: 12px 0 0 !important; font-size: 14px; }
   .chat-book a { color: var(--ink); font-weight: 600; }
+  .invite { margin: 22px 0 6px; padding: 20px; border: 2px solid var(--ink); border-radius: 16px; background: var(--orange-tint); box-shadow: 4px 4px 0 var(--ink); }
+  .invite h3 { margin: 0 0 6px; font-family: var(--font-display); text-transform: uppercase; font-weight: 600; font-size: 24px; }
+  .invite > p { margin: 0 0 14px; }
+  .invite-row { display: flex; gap: 10px; }
+  .invite-row .invite-link { flex: 1; min-width: 0; font-family: var(--font-mono); font-size: 13px; }
+  .invite-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 12px; }
+  .invite-note { font-size: 14px; color: #2f6b1f; font-weight: 600; }
+  @media (max-width: 520px) { .invite-row { flex-direction: column; } }
   .follow-back { margin-top: 14px; background: none; border: 0; padding: 0; color: var(--muted); text-decoration: underline; cursor: pointer; font: inherit; font-size: 14px; }
   .group .group-soon { margin: 10px 0 0; font-weight: 400; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; color: var(--green-dark); }
   @media (max-width: 640px) {
@@ -621,6 +629,21 @@
     chatDone: { pt: "Valeu! Vou te chamar no WhatsApp pra marcar um horário.", es: "¡Gracias! Te escribo por WhatsApp para coordinar un horario.", en: "Thanks! I'll message you on WhatsApp to book a time." },
     chatBook: { pt: "Prefere escolher o horário agora?", es: "¿Preferís elegir el horario ahora?", en: "Rather pick a time now?" },
     chatBookBtn: { pt: "Ver minha agenda", es: "Ver mi agenda", en: "See my calendar" },
+    inviteTitle: { pt: "Conhece outros criadores?", es: "¿Conocés a otros creadores?", en: "Know other creators?" },
+    inviteText: {
+      pt: "Manda o seu link pra quem tem a cara da Toca. Quem se inscrever por ele fica marcado como indicação sua.",
+      es: "Mandale tu link a quien tenga la onda de la Guarida. Quien se postule con él queda marcado como recomendación tuya.",
+      en: "Send your link to creators who'd fit the Den. Anyone who applies through it is marked as your referral."
+    },
+    inviteMsg: {
+      pt: "Tô me inscrevendo na Toca da Raposa, a comunidade de criadores da MetaMask. Acho que tem tudo a ver com você:",
+      es: "Me estoy postulando a la Guarida del Zorro, la comunidad de creadores de MetaMask. Creo que va mucho con vos:",
+      en: "I'm applying to the Fox Den, MetaMask's creator community. I think you'd be a great fit:"
+    },
+    inviteCopy: { pt: "Copiar link", es: "Copiar link", en: "Copy link" },
+    inviteCopied: { pt: "Link copiado!", es: "¡Link copiado!", en: "Link copied!" },
+    inviteWa: { pt: "Mandar no WhatsApp", es: "Mandar por WhatsApp", en: "Send on WhatsApp" },
+    inviteShare: { pt: "Compartilhar", es: "Compartir", en: "Share" },
     followBack: { pt: "Na verdade, eu crio conteúdo", es: "En realidad, creo contenido", en: "Actually, I create content" },
     guideDone: { pt: "Recebi! Vou ler com calma e te chamo no WhatsApp.", es: "¡Lo recibí! Lo voy a leer con calma y te escribo por WhatsApp.", en: "Got it! I'll read it carefully and message you on WhatsApp." },
     noteRole: { pt: "Growth LATAM · MetaMask", es: "Growth LATAM · MetaMask", en: "Growth LATAM · MetaMask" },
@@ -1194,8 +1217,31 @@
         <h2>${esc(t(UI.doneTitle))}</h2>
         <p class="intro" style="color:var(--ink)">${esc(t(UI.doneText))}</p>
         ${groupHTML()}
+        ${inviteHTML()}
         ${contact}${test}
       </section>`;
+  }
+  // link de indicação pessoal: o código sai do @ da rede principal (ou do nome) e vai no ?ref= da máquina
+  function myRef() {
+    const d = state.data, p = d.platforms || {};
+    const pick = (p[d.main_platform] || {}).handle || (Object.values(p).find(x => x.handle) || {}).handle || d.creator_name || d.name || "";
+    let h = String(pick).trim(); if (h.includes("/")) h = h.replace(/\/+$/, "").split("/").pop();
+    const slug = h.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 20);
+    return slug || "criador";
+  }
+  function inviteLink() { return new URL("./", location.href).href + "?ref=" + encodeURIComponent(myRef()); }
+  function inviteHTML() {
+    const link = inviteLink(), msg = t(UI.inviteMsg) + " " + link;
+    return `<div class="invite">
+      <h3>${esc(t(UI.inviteTitle))}</h3><p>${esc(t(UI.inviteText))}</p>
+      <div class="invite-row"><input class="invite-link" type="text" readonly value="${esc(link)}" aria-label="${esc(t(UI.inviteTitle))}" onclick="this.select()">
+        <button type="button" class="btn btn-ink" data-act="invite-copy">${esc(t(UI.inviteCopy))}</button></div>
+      <div class="invite-actions">
+        <a class="btn btn-wa" href="https://wa.me/?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener">${esc(t(UI.inviteWa))}</a>
+        ${navigator.share ? `<button type="button" class="btn btn-ghost" data-act="invite-share">${esc(t(UI.inviteShare))}</button>` : ""}
+        <span class="invite-note" role="status"></span>
+      </div>
+    </div>`;
   }
 
   /* -------------------------------------------------------------
@@ -1308,6 +1354,7 @@
       else out[f.id] = (v || "").toString().trim();
     }));
     out.whatsapp_link = waLink(d.whatsapp, d.country);
+    if (isCreator()) out.my_ref = myRef();   // código do link de indicação deste criador
     return out;
   }
 
@@ -1342,6 +1389,13 @@
     if (act === "resume") { state.step = Math.min(state.savedStep || 0, steps().length - 1); }
     if (act === "restart") { const ls = state.data.__langSet; state.data = ls ? { __langSet: true } : {}; clearDraft(); state.step = 0; }
     if (act === "back") { state.error = false; state.step -= 1; }
+    if (act === "invite-copy" || act === "invite-share") {
+      const link = inviteLink(), note = app.querySelector(".invite-note");
+      if (act === "invite-share") { navigator.share({ text: t(UI.inviteMsg), url: link }).catch(() => {}); return; }
+      const done = () => { if (note) note.textContent = t(UI.inviteCopied); };
+      (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(done).catch(() => { const i = app.querySelector(".invite-link"); i.select(); try { document.execCommand("copy"); done(); } catch (e) {} });
+      return;
+    }
     if (act === "unfollow") { state.done = false; state.testPayload = null; state.chatSent = false; state.data.identity = "creator"; state.step = 0; }
     save(); render(); window.scrollTo({ top: 0 });
   });
