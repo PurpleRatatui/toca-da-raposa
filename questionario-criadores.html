@@ -1,0 +1,1406 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow"> <!-- tirar o noindex no lançamento oficial -->
+<title>Toca da Raposa · MetaMask</title>
+<meta name="description" content="Comunidade de criadores da MetaMask no Brasil e na Argentina · Comunidad de creadores de MetaMask en Brasil y Argentina · MetaMask creator community in Brazil and Argentina">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 142 137'%3E%3Cpath fill='%23FF5C16' d='m132.24 131.751-30.481-9.076-22.986 13.741-16.038-.007-23-13.734-30.467 9.076L0 100.465l9.268-34.723L0 36.385 9.268 0l47.607 28.443h27.757L132.24 0l9.268 36.385-9.268 29.357 9.268 34.723-9.268 31.286Z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<script>
+  /* ============================================================
+     CONFIGURAÇÃO — cole aqui a URL do seu Google Apps Script
+     (veja "Como receber as respostas.md"). Vazio = modo de teste.
+     ============================================================ */
+  window.MM_FORM_CONFIG = {
+    SUBMIT_URL: "",          // ex.: "https://script.google.com/macros/s/AKfy.../exec"
+    CONTACT_EMAIL: "",       // opcional: aparece na tela final
+    WHATSAPP_URL: "",        // link do grupo Toca da Raposa no WhatsApp (ex.: "https://chat.whatsapp.com/...")
+    MACHINE_URL: "toca-da-raposa.html",  // página da máquina (botão "Voltar à máquina")
+    BOOKING_URL: "https://calendly.com/seu-link-aqui"   // PROVISÓRIO: troque pelo seu link de agenda antes de publicar (vazio = só WhatsApp)
+  };
+</script>
+<style>
+  /* Paleta e fontes tiradas do CSS do metamask.com (nov/2026).
+     Fonte de títulos original: Grotzec Condensed (proprietária) -> Oswald, o fallback que o próprio site usa. */
+  :root {
+    --orange: #ff5c16;
+    --orange-dark: #661800;
+    --orange-light: #ffa680;
+    --orange-tint: #fff1eb;
+    --purple: #d075ff;
+    --purple-dark: #3d065f;
+    --purple-darker: #25043a;
+    --purple-light: #eac2ff;
+    --green: #baf24a;
+    --green-dark: #013330;
+    --green-light: #e5ffc3;
+    --blue: #89b0ff;
+    --blue-dark: #190066;
+    --blue-light: #cce7ff;
+    --neutral: #f0e7e4;
+    --ink: #121314;
+    --muted: #686e7d;
+    --line: #e2d6d1;
+    --white: #ffffff;
+    --error: #ca3542;
+
+    --font-display: "Oswald", "Arial Narrow", sans-serif;
+    --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "JetBrains Mono", Menlo, Consolas, monospace;
+
+    --r-sm: 8px;
+    --r-md: 16px;
+    --r-lg: 28px;
+    --pill: 999px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--neutral);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  button { font: inherit; cursor: pointer; }
+
+  /* ---------- top bar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 14px 24px;
+    background: color-mix(in srgb, var(--neutral) 88%, transparent);
+    backdrop-filter: blur(10px);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; }
+  .brand svg.fox { width: 30px; height: auto; }
+  .brand svg.word { height: 26px; width: auto; }
+  .lang {
+    display: inline-flex; padding: 4px; gap: 2px;
+    background: var(--white); border-radius: var(--pill);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .lang button {
+    border: 0; background: transparent; color: var(--ink);
+    padding: 6px 12px; border-radius: var(--pill);
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: .04em;
+  }
+  .lang button[aria-pressed="true"] { background: var(--ink); color: var(--white); }
+
+  /* ---------- layout ---------- */
+  main { max-width: 760px; margin: 0 auto; padding: 8px 24px 80px; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    position: relative; overflow: hidden;
+    background: var(--purple-dark); color: var(--white);
+    border-radius: var(--r-lg);
+    padding: 48px 40px 40px;
+    margin-top: 8px;
+  }
+  .hero .shapes { position: absolute; inset: 0; pointer-events: none; }
+  .hero .shapes span { position: absolute; display: block; }
+  .s1 { width: 180px; height: 180px; border-radius: 50%; background: var(--orange); right: -50px; top: -60px; }
+  .s2 { width: 120px; height: 56px; border-radius: var(--pill); background: var(--green); right: 70px; bottom: 34px; transform: rotate(-12deg); }
+  .s3 { width: 64px; height: 64px; border-radius: 18px; background: var(--purple); right: 30px; top: 150px; transform: rotate(18deg); }
+  .hero > *:not(.shapes) { position: relative; }
+  .eyebrow {
+    display: inline-block; font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+    background: var(--purple-light); color: var(--purple-darker); padding: 6px 12px; border-radius: var(--pill);
+  }
+  .hero h1 {
+    font-family: var(--font-display); font-weight: 600; text-transform: uppercase;
+    font-size: clamp(48px, 10vw, 88px); line-height: .92; letter-spacing: -.01em;
+    margin: 22px 0 18px; max-width: 11ch;
+  }
+  .hero h1 em { font-style: normal; color: var(--orange); display: block; }
+  .hero p { font-size: 18px; line-height: 1.5; max-width: 52ch; margin: 0 0 16px; color: #f3e6fb; }
+  .hero p.lead2 { margin-bottom: 28px; }
+  .facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 30px; padding: 0; list-style: none; }
+  .facts li {
+    font-size: 14px; padding: 7px 14px; border-radius: var(--pill);
+    background: rgba(255,255,255,.1); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+  }
+
+  /* ---------- perks (intro) ---------- */
+  .section-title {
+    font-family: var(--font-display); font-weight: 600; text-transform: uppercase;
+    font-size: clamp(30px, 6vw, 42px); line-height: 1; margin: 44px 0 16px;
+  }
+  .perks { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .perk { border-radius: var(--r-md); padding: 22px 22px 24px; }
+  .perk .num { font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; opacity: .7; }
+  .perk h3 { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; font-size: 24px; line-height: 1.05; margin: 10px 0 8px; }
+  .perk p { margin: 0; font-size: 15px; }
+  .perk.p1 { background: var(--orange); color: var(--white); }
+  .perk.p2 { background: var(--purple-light); color: var(--purple-darker); }
+  .perk.p3 { background: var(--green); color: var(--green-dark); }
+  .perk.p4 { background: var(--blue-light); color: var(--blue-dark); }
+  .who { margin-top: 12px; background: var(--white); border-radius: var(--r-md); padding: 22px 24px; }
+  .who h3 { margin: 0 0 8px; font-size: 16px; }
+  .who p { margin: 0; color: var(--ink); }
+  .cta-bottom { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 28px; }
+  .cta-bottom span { color: var(--muted); font-size: 14px; }
+
+  /* ---------- nota da Ana ---------- */
+  .note {
+    display: grid; grid-template-columns: 120px 1fr; gap: 24px; align-items: center;
+    margin: 12px 0 0; background: var(--white); border-radius: var(--r-lg); padding: 28px 32px;
+  }
+  .note img {
+    width: 120px; height: 120px; border-radius: 50%; object-fit: cover; object-position: 50% 30%;
+    box-shadow: 0 0 0 4px var(--white), 0 0 0 7px var(--orange);
+  }
+  .note blockquote { margin: 0; font-size: 18px; line-height: 1.5; color: var(--ink); }
+  .note .sig { margin-top: 14px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+  .note .sig strong { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; font-size: 22px; letter-spacing: .01em; }
+  .note .sig span { font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    border: 0; border-radius: var(--pill);
+    padding: 16px 28px; font-size: 16px; font-weight: 600;
+    transition: transform .12s ease, background-color .12s ease;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: var(--orange); color: var(--white); }
+  .btn-primary:hover { background: #fa4b00; }
+  .btn-ink { background: var(--ink); color: var(--white); }
+  .btn-ink:hover { background: #242628; }
+  .btn-ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .btn-ghost:hover { background: rgba(18,19,20,.05); }
+  .btn-ghost.on-dark { color: var(--white); box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.6); }
+  .btn[disabled] { opacity: .5; cursor: progress; }
+  .btn .arrow { font-family: var(--font-mono); }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+
+  /* ---------- progress ---------- */
+  .progress { margin: 28px 0 18px; }
+  .progress-meta { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .step-count { font-family: var(--font-mono); font-size: 13px; color: var(--muted); letter-spacing: .04em; }
+  .bars { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .bars span { height: 6px; border-radius: var(--pill); background: var(--line); transition: background-color .2s; }
+  .bars span.done { background: var(--ink); }
+  .bars span.on { background: var(--orange); }
+
+  /* ---------- step card ---------- */
+  .card { background: var(--white); border-radius: var(--r-lg); padding: 36px 36px 32px; }
+  .card h2 {
+    font-family: var(--font-display); font-weight: 600; text-transform: uppercase;
+    font-size: clamp(34px, 6.5vw, 48px); line-height: 1; letter-spacing: -.005em; margin: 0 0 10px;
+  }
+  .card .intro { color: var(--muted); margin: 0 0 8px; max-width: 58ch; }
+  .callout {
+    margin: 18px 0 6px; padding: 20px 22px; border-radius: var(--r-md);
+    background: var(--green-light); color: var(--green-dark);
+  }
+  .callout h3 { margin: 0 0 10px; font-size: 15px; font-weight: 700; }
+  .callout ul { margin: 0; padding-left: 20px; }
+  .callout li { margin: 4px 0; }
+  .callout p { margin: 10px 0 0; font-size: 14px; }
+
+  .field { margin-top: 28px; border: 0; padding: 0; min-width: 0; }
+  .field > legend, .field > label.q {
+    display: block; font-weight: 600; font-size: 16px; margin: 0 0 4px; padding: 0;
+  }
+  .req { color: var(--orange); margin-left: 2px; }
+  .help { display: block; color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+  .q-spacer { height: 8px; }
+
+  input[type="text"], input[type="email"], input[type="url"], input[type="tel"], select, textarea {
+    width: 100%; font: inherit; color: var(--ink);
+    background: var(--orange-tint); border: 1.5px solid transparent; border-radius: var(--r-sm);
+    padding: 13px 14px; transition: border-color .15s, background-color .15s;
+  }
+  input::placeholder, textarea::placeholder { color: #9a8f8b; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--ink); background: var(--white); }
+  textarea { min-height: 112px; resize: vertical; }
+  select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%); background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%; background-size: 6px 6px; background-repeat: no-repeat; padding-right: 40px; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* chips (radio / checkbox) */
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips.stack { flex-direction: column; align-items: stretch; }
+  .chip { position: relative; }
+  .chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .chip span {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 16px; border-radius: var(--pill);
+    background: var(--white); box-shadow: inset 0 0 0 1.5px var(--line);
+    font-size: 15px; line-height: 1.3; transition: background-color .12s, box-shadow .12s, color .12s;
+    cursor: pointer; user-select: none;
+  }
+  .chips.stack .chip span { display: flex; border-radius: var(--r-md); padding: 14px 18px; }
+  .chip:hover span { box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .chip input:checked + span { background: var(--ink); color: var(--white); box-shadow: inset 0 0 0 1.5px var(--ink); }
+  .chip input:focus-visible + span { outline: 3px solid var(--blue); outline-offset: 2px; }
+  .chip input:disabled + span { opacity: .4; cursor: not-allowed; }
+  .chip span::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--line); flex: none; }
+  .chip input:checked + span::before { background: var(--orange); }
+
+  /* platforms */
+  .plat-rows { display: grid; gap: 10px; margin-top: 14px; }
+  .plat-row {
+    display: grid; grid-template-columns: 120px 1fr 190px; gap: 10px; align-items: center;
+    padding: 10px; border-radius: var(--r-md); background: var(--neutral);
+  }
+  .plat-row .pname { font-family: var(--font-mono); font-size: 13px; padding-left: 6px; }
+  .plat-row input, .plat-row select { background: var(--white); }
+
+  /* consent */
+  .consent { display: flex; gap: 12px; align-items: flex-start; padding: 16px 18px; border-radius: var(--r-md); background: var(--neutral); cursor: pointer; }
+  .consent input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--orange); flex: none; }
+  .consent span { font-size: 14px; }
+
+  /* errors */
+  .err { display: none; color: var(--error); font-size: 14px; margin-top: 8px; font-weight: 500; }
+  .field.invalid .err { display: block; }
+  .field.invalid input, .field.invalid select, .field.invalid textarea { border-color: var(--error); }
+  .field.invalid .chip span { box-shadow: inset 0 0 0 1.5px #f0b4ba; }
+  .counter { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-left: 6px; font-weight: 500; }
+
+  /* nav */
+  .nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--line); }
+  .nav .spacer { flex: 1; }
+  .saved { font-size: 13px; color: var(--muted); }
+
+  /* done */
+  .done .big-fox { width: 84px; margin-bottom: 12px; }
+  .testmode { margin-top: 20px; padding: 14px 16px; border-radius: var(--r-md); background: var(--orange-tint); color: var(--orange-dark); font-size: 14px; }
+  .testmode pre { white-space: pre-wrap; word-break: break-word; font-family: var(--font-mono); font-size: 12px; max-height: 260px; overflow: auto; margin: 10px 0 0; }
+
+  footer { max-width: 760px; margin: 0 auto; padding: 0 24px 40px; color: var(--muted); font-size: 13px; }
+
+  @media (max-width: 640px) {
+    .topbar { padding: 12px 16px; }
+    .brand svg.word { display: none; }
+    main { padding: 4px 16px 64px; }
+    footer { padding: 0 16px 32px; }
+    .hero { padding: 36px 24px 28px; border-radius: 22px; }
+    .s1 { width: 120px; height: 120px; right: -40px; top: -40px; }
+    .s2 { width: 80px; height: 40px; right: 18px; bottom: 18px; }
+    .s3 { display: none; }
+    .hero p { font-size: 16px; }
+    .perks { grid-template-columns: 1fr; }
+    .note { grid-template-columns: 1fr; gap: 18px; padding: 24px 22px; border-radius: 22px; }
+    .note img { width: 88px; height: 88px; }
+    .note blockquote { font-size: 16px; }
+    .card { padding: 26px 20px 24px; border-radius: 22px; }
+    .row2 { grid-template-columns: 1fr; }
+    .plat-row { grid-template-columns: 1fr 1fr; }
+    .plat-row .pname { grid-column: 1 / -1; padding: 2px 4px 0; }
+    .btn { padding: 15px 22px; }
+    .nav .saved { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+<style>
+  /* ============================================================
+     Estilo da máquina (toca-da-raposa.html): papel com textura,
+     contornos de nanquim, sombras chapadas e rótulos em mono.
+     ============================================================ */
+  :root { --paper:#f0e7e4; --card:#fbf8f3; --ink:#121314; --hard:3px 3px 0 var(--ink); --hard-lg:5px 5px 0 var(--ink); }
+  body {
+    background-color: var(--paper);
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='p'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .42  0 0 0 0 .39  0 0 0 0 .33  .16 0 0 0 0'/></filter><rect width='100%' height='100%' filter='url(%23p)'/></svg>");
+  }
+  :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+  /* top bar like the machine: fox + title in Oswald */
+  .topbar { background: transparent; backdrop-filter: none; position: relative; padding: 18px 24px 8px; max-width: 808px; margin: 0 auto; }
+  .brand svg.word { display: none; }
+  .brand-title { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; font-size: 22px; letter-spacing: .01em; }
+  .lang { box-shadow: inset 0 0 0 1px var(--line); }
+
+  /* hero = the black cabinet */
+  .hero { background: var(--ink); border: 2.5px solid var(--ink); border-radius: 22px; box-shadow: 6px 6px 0 var(--orange); }
+  .hero .shapes span { border: 2.5px solid var(--ink); filter: url(#hand); }
+  .eyebrow { background: var(--green); color: var(--ink); border: 1.5px solid var(--ink); box-shadow: 2px 2px 0 rgba(255,255,255,.85); }
+  .hero p { color: #ece6e1; }
+  .facts li { font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; text-transform: uppercase; background: transparent; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.55); }
+
+  /* buttons: arcade keys with hard shadows */
+  .btn {
+    font-family: var(--font-mono); font-size: 14px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+    border: 2px solid var(--ink); box-shadow: var(--hard); padding: 14px 22px;
+    transition: transform .06s ease, box-shadow .06s ease, background-color .12s ease;
+  }
+  .btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--ink); }
+  .btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+  .btn-ghost { background: var(--card); box-shadow: var(--hard); }
+  .btn-ghost:hover { background: var(--card); }
+  .hero .btn { box-shadow: 3px 3px 0 var(--green); }
+  .hero .btn:hover { box-shadow: 4px 4px 0 var(--green); }
+  .hero .btn:active { box-shadow: 1px 1px 0 var(--green); }
+  .btn-ghost.on-dark { background: transparent; color: #fff; border-color: #fff; box-shadow: 3px 3px 0 var(--green); }
+
+  /* inked cards */
+  .card, .note, .who { background: var(--card); border: 2px solid var(--ink); box-shadow: var(--hard-lg); border-radius: 18px; }
+  .perk { border: 2px solid var(--ink); box-shadow: var(--hard); border-radius: 16px; }
+  .perk .num { font-weight: 500; opacity: .85; }
+  .callout { border: 1.5px solid var(--ink); border-radius: 12px; }
+  .note img { box-shadow: 0 0 0 3px var(--card), 0 0 0 5.5px var(--ink), 6px 6px 0 5.5px var(--orange); }
+
+  /* progress: inked segments + mono counter */
+  .step-count { color: var(--ink); text-transform: uppercase; }
+  .bars span { height: 12px; border: 1.5px solid var(--ink); background: var(--card); }
+  .bars span.done { background: var(--ink); }
+  .bars span.on { background: var(--orange); }
+
+  /* fields */
+  .help { font-size: 14px; }
+  input[type="text"], input[type="email"], input[type="url"], input[type="tel"], select, textarea {
+    background-color: #ffffff; border: 2px solid var(--ink); border-radius: 10px;
+    transition: box-shadow .08s ease, transform .08s ease;
+  }
+  input:focus, select:focus, textarea:focus { background-color: #ffffff; border-color: var(--ink); box-shadow: var(--hard); transform: translate(-1px, -1px); }
+  .chip span { background: var(--card); box-shadow: 2px 2px 0 var(--ink); border: 1.5px solid var(--ink); transition: transform .06s, box-shadow .06s, background-color .1s, color .1s; }
+  .chip:hover span { box-shadow: 3px 3px 0 var(--ink); transform: translate(-1px, -1px); }
+  .chip input:checked + span { background: var(--ink); color: #fff; box-shadow: 2px 2px 0 var(--orange); border-color: var(--ink); }
+  .chip input:focus-visible + span { outline: 2px solid var(--ink); outline-offset: 3px; }
+  .chip span::before { width: 10px; height: 10px; background: var(--card); border: 1.5px solid var(--ink); }
+  .chip input:checked + span::before { background: var(--orange); border-color: #fff; }
+  .chips.stack .chip span { border-radius: 12px; }
+  .plat-row { background: var(--paper); border: 1.5px solid var(--ink); border-radius: 12px; }
+  .consent { background: var(--paper); border: 1.5px solid var(--ink); border-radius: 12px; }
+  .consent input { accent-color: var(--ink); }
+  .field.invalid input, .field.invalid select, .field.invalid textarea { border-color: var(--error); box-shadow: 3px 3px 0 var(--error); }
+  .field.invalid .chip span { border-color: var(--error); box-shadow: 2px 2px 0 var(--error); }
+  .nav { border-top: 1.5px dashed rgba(18,19,20,.35); }
+  .saved { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+  .testmode { border: 1.5px solid var(--ink); border-radius: 12px; }
+  footer { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
+
+  @media (max-width: 640px) {
+    .topbar { padding: 12px 16px 6px; }
+    .brand-title { font-size: 19px; }
+    .hero { border-radius: 18px; box-shadow: 4px 4px 0 var(--orange); }
+    .card, .note, .who { border-radius: 16px; box-shadow: 4px 4px 0 var(--ink); }
+  }
+  @media (prefers-reduced-motion: reduce) { .btn:hover, .chip:hover span, input:focus { transform: none; } }
+  /* ---------- Ana: foto + balão de fala ---------- */
+  .chat { display: flex; align-items: flex-end; gap: 14px; margin: 26px 0 0; }
+  .chat-ava { width: 76px; height: 76px; flex: none; border-radius: 50%; object-fit: cover; object-position: 50% 30%;
+    border: 2.5px solid var(--ink); box-shadow: 3px 3px 0 var(--orange); background: var(--card); }
+  .chat-col { min-width: 0; flex: 1; }
+  .chat-who { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 0 0 6px 6px; }
+  .chat-who strong { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; font-size: 18px; }
+  .chat-who span { font-family: var(--font-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .chat-bubble { position: relative; margin: 0; padding: 16px 20px; max-width: 520px; font-size: 17px; line-height: 1.45;
+    background: var(--card); border: 2px solid var(--ink); border-radius: 20px 20px 20px 6px; box-shadow: var(--hard);
+    animation: chatIn .45s cubic-bezier(.2,1.4,.4,1) both .15s; transform-origin: 0 100%; }
+  .chat-bubble::before { content: ""; position: absolute; left: -15px; bottom: 12px; border-style: solid;
+    border-width: 9px 15px 9px 0; border-color: transparent var(--ink) transparent transparent; }
+  .chat-bubble::after { content: ""; position: absolute; left: -11px; bottom: 14.5px; border-style: solid;
+    border-width: 6.5px 12px 6.5px 0; border-color: transparent var(--card) transparent transparent; }
+  @keyframes chatIn { from { opacity: 0; transform: scale(.85) translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (max-width: 640px) { .chat { gap: 10px; } .chat-ava { width: 58px; height: 58px; } .chat-bubble { font-size: 15.5px; padding: 14px 16px; } }
+  @media (prefers-reduced-motion: reduce) { .chat-bubble { animation: none; } }
+  /* ---------- Ana: guia flutuante ---------- */
+  .guide-wrap { max-width: 808px; margin: 0 auto; padding: 6px 24px 0; position: relative; z-index: 30; pointer-events: none; }
+  .guide-wrap.float { position: sticky; top: 10px; }
+  .guide-wrap.stuck::before { content: ""; position: absolute; z-index: -1; pointer-events: none; top: -10px; bottom: -22px; left: calc(50% - 50vw); right: calc(50% - 50vw);
+    background: linear-gradient(to bottom, var(--paper) 0, var(--paper) 72%, color-mix(in srgb, var(--paper) 0%, transparent) 100%); }
+  .guide { display: flex; align-items: flex-end; gap: 12px; pointer-events: auto; width: max-content; max-width: min(600px, 100%);
+    translate: 0 0; transition: translate .7s cubic-bezier(.25,.9,.3,1); }
+  .guide-ava { width: 64px; height: 64px; flex: none; border-radius: 50%; object-fit: cover; object-position: 50% 30%;
+    border: 2.5px solid var(--ink); box-shadow: 3px 3px 0 var(--orange); background: var(--card); }
+  .guide-col { min-width: 0; flex: 1; display: flex; flex-direction: column; align-items: flex-start; }
+  .guide-who { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; margin: 0 0 5px 4px; padding: 2px 8px; border-radius: 999px; background: color-mix(in srgb, var(--paper) 85%, transparent); }
+  .guide-who strong { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; font-size: 15px; }
+  .guide-who span { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .guide-bubble { position: relative; margin: 0; padding: 13px 18px; max-width: 400px; min-height: 48px; font-size: 16px; line-height: 1.45;
+    background: var(--card); border: 2px solid var(--ink); border-radius: 18px 18px 18px 6px; box-shadow: var(--hard); }
+  .guide-bubble::before { content: ""; position: absolute; left: -15px; bottom: 11px; border-style: solid; border-width: 9px 15px 9px 0; border-color: transparent var(--ink) transparent transparent; }
+  .guide-bubble::after { content: ""; position: absolute; left: -11px; bottom: 13.5px; border-style: solid; border-width: 6.5px 12px 6.5px 0; border-color: transparent var(--card) transparent transparent; }
+  /* left -> right: the guide slides in from the left once, then every new line is revealed left to right */
+  .guide { animation: guideEnter .7s cubic-bezier(.2,1.2,.35,1) both .1s; }
+  @keyframes guideEnter { from { opacity: 0; transform: translateX(-60px); } to { opacity: 1; transform: none; } }
+  .guide-bubble.in { animation: guideWipe .55s cubic-bezier(.3,.9,.3,1) both; }
+  @keyframes guideWipe {
+    from { clip-path: inset(-20px 100% -20px -20px); transform: translateX(-14px); }
+    to   { clip-path: inset(-20px -20px -20px -20px); transform: none; } }
+  .guide-bubble.typing { animation: guideNudge .3s ease-out both; }
+  @keyframes guideNudge { from { transform: translateX(-10px); opacity: .4; } to { transform: none; opacity: 1; } }
+  .guide-ava.hop { animation: avaHop .45s ease-out; }
+  @keyframes avaHop { 0% { transform: translateX(-8px) rotate(-6deg); } 60% { transform: translateX(3px) rotate(2deg); } 100% { transform: none; } }
+  .guide-bubble .dots { display: inline-flex; gap: 5px; padding: 6px 2px; }
+  .guide-bubble .dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--ink); opacity: .35; animation: dot 1s infinite; }
+  .guide-bubble .dots i:nth-child(2) { animation-delay: .15s; } .guide-bubble .dots i:nth-child(3) { animation-delay: .3s; }
+  @keyframes dot { 0%, 60%, 100% { opacity: .25; transform: none; } 30% { opacity: .9; transform: translateY(-3px); } }
+  main { padding-top: 14px; }
+  @media (max-width: 640px) {
+    .guide-wrap { padding: 4px 16px 0; }
+    .guide { gap: 10px; max-width: 86%; }
+    .guide-ava { width: 48px; height: 48px; }
+    .guide-bubble { font-size: 14.5px; padding: 11px 14px; min-height: 42px; }
+    .guide-who strong { font-size: 13px; } .guide-who span { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .guide { transition: none; } .guide, .guide-bubble.in, .guide-bubble.typing, .guide-ava.hop, .guide-bubble .dots i { animation: none; } }
+  /* ---------- voltar à máquina + grupo do WhatsApp ---------- */
+  .back-machine { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px;
+    background: var(--card); color: var(--ink); text-decoration: none; border: 1.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink);
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: .05em; text-transform: uppercase; transition: transform .06s, box-shadow .06s; }
+  .back-machine:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ink); }
+  .back-machine:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--ink); }
+  .back-machine .bm-short { display: none; }
+  .group { margin: 22px 0 6px; padding: 18px 20px; border: 1.5px solid var(--ink); border-radius: 14px; background: var(--green-light); }
+  .group p { margin: 0 0 12px; font-weight: 600; }
+  .btn-wa { background: #25d366; color: #0b3d1f; }
+  .btn-wa:hover { background: #2fe072; }
+  .btn-wa.is-off { opacity: .55; cursor: not-allowed; }
+  .follow-groups { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 20px 0 6px; }
+  .follow-who { margin: 0 0 8px; font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .follow-links { display: grid; gap: 10px; }
+  @media (max-width: 640px) { .follow-groups { grid-template-columns: 1fr; } }
+  .follow-link { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border: 2px solid var(--ink); border-radius: 14px; background: #fff; color: var(--ink); text-decoration: none; box-shadow: 3px 3px 0 var(--ink); transition: transform .06s, box-shadow .06s; }
+  .follow-link:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--orange); }
+  .follow-link span { display: flex; flex-direction: column; flex: 1; line-height: 1.25; }
+  .follow-link b { font-family: var(--font-display); text-transform: uppercase; font-weight: 600; font-size: 17px; }
+  .follow-link small { color: var(--muted); font-size: 14px; }
+  .follow-link i { font-style: normal; font-size: 18px; }
+  .chat-card { margin: 22px 0 4px; padding: 20px; border: 2px solid var(--ink); border-radius: 16px; background: var(--orange-tint); box-shadow: 4px 4px 0 var(--ink); }
+  .chat-card h3 { margin: 0 0 6px; font-family: var(--font-display); text-transform: uppercase; font-weight: 600; font-size: 24px; }
+  .chat-card > p { margin: 0 0 14px; }
+  .chat-card .field { margin-bottom: 12px; }
+  .chat-card.is-done { background: #eaffc9; }
+  .chat-consent { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; cursor: pointer; }
+  .chat-consent input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--orange); flex: none; }
+  .chat-book { margin: 12px 0 0 !important; font-size: 14px; }
+  .chat-book a { color: var(--ink); font-weight: 600; }
+  .follow-back { margin-top: 14px; background: none; border: 0; padding: 0; color: var(--muted); text-decoration: underline; cursor: pointer; font: inherit; font-size: 14px; }
+  .group .group-soon { margin: 10px 0 0; font-weight: 400; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; color: var(--green-dark); }
+  @media (max-width: 640px) {
+    .back-machine { padding: 7px 11px; } .back-machine .bm-long { display: none; } .back-machine .bm-short { display: inline; }
+    .topbar { gap: 8px; } .brand-title { font-size: 17px; }
+  }
+  html, body { overflow-x: clip; }
+  .guide-wrap.stuck::before { left: 0; right: 0; margin: 0 calc(50% - 50vw); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="hand" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="2" seed="4" result="w"/><feDisplacementMap in="SourceGraphic" in2="w" scale="4" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
+<header class="topbar">
+  <a class="brand" href="#" aria-label="MetaMask">
+    <svg class="fox" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 142 137" aria-hidden="true">
+      <path fill="#FF5C16" d="m132.24 131.751-30.481-9.076-22.986 13.741-16.038-.007-23-13.734-30.467 9.076L0 100.465l9.268-34.723L0 36.385 9.268 0l47.607 28.443h27.757L132.24 0l9.268 36.385-9.268 29.357 9.268 34.723-9.268 31.286Z"/>
+      <path fill="#FF5C16" d="m9.274 0 47.608 28.463-1.893 19.534L9.274 0Zm30.468 100.478 20.947 15.957-20.947 6.24v-22.197Zm19.273-26.381L54.989 48.01l-25.77 17.74-.014-.007v.013l.08 18.26 10.45-9.918h19.28ZM132.24 0 84.632 28.463l1.887 19.534L132.24 0Zm-30.467 100.478-20.948 15.957 20.948 6.24v-22.197Zm10.529-34.723h.007-.007v-.013l-.006.007-25.77-17.739L82.5 74.097h19.272l10.457 9.917.073-18.259Z"/>
+      <path fill="#E34807" d="m39.735 122.675-30.467 9.076L0 100.478h39.735v22.197ZM59.008 74.09l5.82 37.714-8.066-20.97-27.49-6.82 10.456-9.923h19.28Zm42.764 48.585 30.468 9.076 9.268-31.273h-39.736v22.197ZM82.5 74.09l-5.82 37.714 8.065-20.97 27.491-6.82-10.463-9.923H82.5Z"/>
+      <path fill="#FF8D5D" d="m0 100.465 9.268-34.723h19.93l.073 18.266 27.492 6.82 8.065 20.969-4.146 4.618-20.947-15.957H0v.007Zm141.508 0-9.268-34.723h-19.931l-.073 18.266-27.49 6.82-8.066 20.969 4.145 4.618 20.948-15.957h39.735v.007ZM84.632 28.443H56.875L54.99 47.977l9.839 63.8H76.68l9.845-63.8-1.893-19.534Z"/>
+      <path fill="#661800" d="M9.268 0 0 36.385l9.268 29.357h19.93l25.784-17.745L9.268 0Zm43.98 81.665h-9.029l-4.916 4.819 17.466 4.33-3.521-9.155v.006ZM132.24 0l9.268 36.385-9.268 29.357h-19.931L86.526 47.997 132.24 0ZM88.273 81.665h9.042l4.916 4.825-17.486 4.338 3.528-9.17v.007Zm-9.507 42.305 2.06-7.542-4.146-4.618H64.82l-4.145 4.618 2.059 7.542"/>
+      <path fill="#C0C4CD" d="M78.766 123.969v12.453H62.735v-12.453h16.03Z"/>
+      <path fill="#E7EBF6" d="m39.742 122.662 23.006 13.754v-12.453l-2.06-7.541-20.946 6.24Zm62.031 0-23.007 13.754v-12.453l2.06-7.541 20.947 6.24Z"/>
+    </svg>
+    <svg class="word" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 127 63" aria-hidden="true">
+      <path fill="currentColor" d="M71.554 48.607v13.81h-7.072v-9.568l-8.059.945c-1.77.205-2.548.79-2.548 1.864 0 1.575 1.478 2.239 4.648 2.239 1.932 0 4.073-.29 5.963-.79l-3.66 5.225c-1.479.332-2.92.496-4.44.496-6.414 0-10.074-2.57-10.074-7.132 0-4.023 2.877-6.136 9.416-6.884l8.638-1.012c-.467-2.532-2.362-3.633-6.13-3.633-3.537 0-7.443.912-10.937 2.613l1.111-6.18c3.248-1.369 6.95-2.074 10.69-2.074 8.226 0 12.461 3.444 12.461 10.075l-.008.005ZM7.938 31.315.208 62.416h7.73l3.836-15.628 6.65 8.039h8.06l6.65-8.039 3.836 15.628h7.73l-7.73-31.105-14.518 17.388L7.934 31.311l.004.004ZM36.97.21 22.452 17.598 7.938.21.208 31.315h7.73l3.836-15.628 6.65 8.039h8.06l6.65-8.039 3.836 15.628h7.73L36.97.21Zm53.17 48.107-6.25-.912c-1.562-.247-2.178-.747-2.178-1.617 0-1.41 1.52-2.032 4.647-2.032 3.62 0 6.868.747 10.283 2.364l-.862-6.094c-2.757-.995-5.922-1.491-9.212-1.491-7.688 0-11.886 2.696-11.886 7.547 0 3.776 2.303 5.889 7.196 6.636l6.335.954c1.603.248 2.261.87 2.261 1.865 0 1.41-1.478 2.074-4.481 2.074-3.948 0-8.225-.953-11.72-2.654l.7 6.094c3.003 1.122 6.91 1.785 10.57 1.785 7.896 0 12.007-2.78 12.007-7.715 0-3.94-2.303-6.057-7.4-6.8l-.01-.004ZM100.3 34.09v28.325h7.071V34.091H100.3Zm15.334 15.595 9.833-10.744h-8.8l-9.296 11.114 9.912 12.356h8.925l-10.574-12.73v.004Zm-16.321-25.09c0 4.56 3.66 7.13 10.074 7.13 1.52 0 2.961-.167 4.44-.495l3.66-5.225c-1.89.496-4.031.79-5.963.79-3.166 0-4.648-.664-4.648-2.239 0-1.079.783-1.659 2.549-1.864l8.058-.945v9.567h7.072v-13.81c0-6.635-4.236-10.075-12.461-10.075-3.744 0-7.442.705-10.691 2.075l-1.112 6.178c3.495-1.701 7.401-2.613 10.937-2.613 3.769 0 5.664 1.1 6.13 3.633l-8.637 1.013c-6.539.747-9.417 2.86-9.417 6.883l.009-.004Zm-19.779-1.492c0 5.725 3.29 8.627 9.787 8.627 2.59 0 4.732-.416 6.785-1.37l.903-6.261c-1.974 1.2-3.99 1.822-6.005 1.822-3.044 0-4.402-1.243-4.402-4.023v-8.295h10.732V7.84H86.601V2.948l-13.448 7.174v3.482h6.372V23.1l.008.004Zm-6.95-2.612v1.411H53.47c.862 2.873 3.423 4.187 7.97 4.187 3.62 0 6.993-.747 9.992-2.196l-.862 6.056c-2.757 1.16-6.251 1.785-9.829 1.785-9.5 0-14.68-4.23-14.68-12.066 0-7.838 5.264-12.235 13.406-12.235s13.119 4.771 13.119 13.062l-.005-.004ZM53.378 17.09h12.086c-.637-2.751-2.732-4.188-6.08-4.188-3.349 0-5.335 1.399-6.006 4.188Z"/>
+    </svg>
+    <b class="brand-title" id="brandTitle">Toca da Raposa</b>
+  </a>
+  <a class="back-machine" id="backMachine" href="toca-da-raposa.html"><span class="bm-arrow" aria-hidden="true">←</span><span class="bm-long">Voltar à máquina de pelúcia</span><span class="bm-short">Máquina</span></a>
+  <div class="lang" role="group" aria-label="Idioma / Idioma / Language">
+    <button type="button" data-lang="pt" aria-pressed="true">PT</button>
+    <button type="button" data-lang="es" aria-pressed="false">ES</button>
+    <button type="button" data-lang="en" aria-pressed="false">EN</button>
+  </div>
+</header>
+
+<div class="guide-wrap" id="guideWrap">
+  <div class="guide">
+    <img class="guide-ava" id="guideAva" alt="Ana Westfal" width="64" height="64">
+    <div class="guide-col">
+      <div class="guide-who"><strong>Ana Westfal</strong><span id="guideRole"></span></div>
+      <p class="guide-bubble" id="guideBubble" aria-live="polite"></p>
+    </div>
+  </div>
+</div>
+<main id="app" aria-live="polite"></main>
+<footer id="foot"></footer>
+
+<script>
+(function () {
+  "use strict";
+  const CFG = window.MM_FORM_CONFIG || {};
+  const STORE_KEY = "mm-creators-latam-v1";
+  const LANGS = ["pt", "es", "en"];
+  const ANA_PHOTO = "data:image/jpeg;base64,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";
+
+  /* -------------------------------------------------------------
+     Textos da interface (PT / ES / EN)
+     ------------------------------------------------------------- */
+  const UI = {
+    brandName: { pt: "Toca da Raposa", es: "La Guarida del Zorro", en: "The Fox Den" },
+    eyebrow: { pt: "Comunidade de criadores · Brasil & Argentina", es: "Comunidad de creadores · Brasil & Argentina", en: "Creator community · Brazil & Argentina" },
+    h1: { pt: "Venha para a <em>Toca da Raposa</em>", es: "Vení a <em>La Guarida del Zorro</em>", en: "Join <em>the Fox Den</em>" },
+    lead: {
+      pt: "A Toca da Raposa é a comunidade de criadores da MetaMask na América Latina. Estamos reunindo criadores do Brasil e da Argentina que falam de cripto e também de música, gastronomia, moda, esporte, humor e lifestyle: gente curiosa por cripto, que usa a MetaMask e quer viver experiências com a gente.",
+      es: "La Guarida del Zorro es la comunidad de creadores de MetaMask en Latinoamérica. Estamos reuniendo a creadores de Brasil y Argentina que hablan de cripto y también de música, gastronomía, moda, deporte, humor y lifestyle: gente con curiosidad por cripto, que usa MetaMask y quiere vivir experiencias con nosotros.",
+      en: "The Fox Den is MetaMask's creator community in Latin America. We're bringing together creators in Brazil and Argentina who talk about crypto, and also about music, food, fashion, sports, comedy and lifestyle: people curious about crypto who use MetaMask and want to share experiences with us.",
+    },
+    lead2: {
+      pt: "Você não precisa falar só de cripto, nem ter um público enorme. Tem lugar para criadores de todos os tamanhos e nichos, e para quem usa a MetaMask e quer ajudar a construir o produto.",
+      es: "No hace falta que hables solo de cripto, ni que tengas una audiencia enorme. Hay lugar para creadores de todos los tamaños y nichos, y para quienes usan MetaMask y quieren ayudar a construir el producto.",
+      en: "You don't have to talk only about crypto, or have a huge audience. There's room for creators of every size and niche, and for people who use MetaMask and want to help shape the product.",
+    },
+    facts: {
+      pt: ["5 a 8 minutos", "Micro, médio e grande", "Sem exclusividade"],
+      es: ["5 a 8 minutos", "Micro, mediano y grande", "Sin exclusividad"],
+      en: ["5–8 minutes", "Micro, mid and large", "No exclusivity"]
+    },
+    perksTitle: { pt: "O que rola na Toca", es: "Qué pasa en la Guarida", en: "What happens in the Den" },
+    perks: [
+      { h: { pt: "Primeiro a saber", es: "Primero en enterarte", en: "First to know" },
+        p: { pt: "Acesso antecipado a lançamentos da MetaMask, para testar e criar antes de todo mundo.", es: "Acceso anticipado a los lanzamientos de MetaMask, para probar y crear antes que nadie.", en: "Early access to MetaMask launches, so you can test and create before everyone else." } },
+      { h: { pt: "Linha direta com produto", es: "Línea directa con producto", en: "Direct line to product" },
+        p: { pt: "Seu feedback e o da sua comunidade chegam direto no time que constrói o app.", es: "Tu feedback y el de tu comunidad llegan directo al equipo que construye la app.", en: "Your feedback, and your community's, goes straight to the team building the app." } },
+      { h: { pt: "Encontros ao vivo", es: "Encuentros en vivo", en: "In-person moments" },
+        p: { pt: "Jantares, gravações e experiências em São Paulo, Buenos Aires e outras cidades.", es: "Cenas, grabaciones y experiencias en São Paulo, Buenos Aires y otras ciudades.", en: "Dinners, shoots and experiences in São Paulo, Buenos Aires and other cities." } },
+      { h: { pt: "Portas para parcerias", es: "Puertas a alianzas", en: "Doors to partnerships" },
+        p: { pt: "Quem faz parte da Toca pode ser convidado para parcerias com a MetaMask, num formato que combina com você.", es: "Quienes forman parte de la Guarida pueden ser invitados a alianzas con MetaMask, en un formato que va con vos.", en: "Den members can be invited to partner with MetaMask, in a format that fits them." } }
+    ],
+    guideIntro: {
+      pt: ["Oi, eu sou a Ana, do time de crescimento da MetaMask na América Latina.",
+           "Tô montando a Toca criador por criador.",
+           "Olha o que rola por lá.",
+           "Todos os tamanhos e nichos, não só cripto.",
+           "Leio cada inscrição. Bora?"],
+      es: ["¡Hola! Soy Ana, del equipo de crecimiento de MetaMask en Latinoamérica.",
+           "Estoy armando la Guarida creador por creador.",
+           "Mirá lo que pasa ahí.",
+           "Todos los tamaños y nichos, no solo cripto.",
+           "Leo cada postulación. ¿Vamos?"],
+      en: ["Hi, I'm Ana, from MetaMask's growth team in Latin America.",
+           "I'm building the Den one creator at a time.",
+           "Here's what happens there.",
+           "Every size and niche, not just crypto.",
+           "I read every application. Let's go?"]
+    },
+    // primeira fala quando a pessoa vem da máquina (já se apresentou lá)
+    guideBack: { pt: "Que raposa linda! Agora quero te conhecer.", es: "¡Qué lindo zorro! Ahora quiero conocerte.", en: "Great fox! Now I'd love to get to know you." },
+    guideStep: {
+      identity:   { pt: "Primeiro, me conta: como você se identifica?", es: "Primero, contame: ¿cómo te identificás?", en: "First, tell me: how do you identify?" },
+      about:      { pt: "Prazer! Agora o básico, pra eu saber com quem tô falando.", es: "¡Un gusto! Ahora lo básico, para saber con quién hablo.", en: "Nice to meet you! Now the basics, so I know who I'm talking to." },
+      audience:   { pt: "Me mostra onde sua comunidade está. Tamanho não é pré-requisito.", es: "Mostrame dónde está tu comunidad. El tamaño no es requisito.", en: "Show me where your community lives. Size isn't a requirement." },
+      content:    { pt: "Agora sobre o seu conteúdo. Não tem resposta certa.", es: "Ahora sobre tu contenido. No hay respuesta correcta.", en: "Now about your content. There's no right answer." },
+      metamask:   { pt: "Pode ser sincero(a) sobre a MetaMask. Crítica me ajuda muito.", es: "Podés ser sincero/a sobre MetaMask. Las críticas me ayudan mucho.", en: "Be honest about MetaMask. Criticism helps me a lot." },
+      partnership:{ pt: "Esse é o nosso formato base, mas a gente ajusta pra cada pessoa.", es: "Este es nuestro formato base, pero lo ajustamos para cada persona.", en: "This is our baseline format, but we adjust it for each person." },
+      trust:      { pt: "Última etapa! Transparência pesa muito pra gente.", es: "¡Última etapa! La transparencia pesa mucho para nosotros.", en: "Last step! Transparency matters a lot to us." },
+    },
+    backMachine: { pt: "Voltar à máquina de pelúcia", es: "Volver a la grúa", en: "Back to the claw machine" },
+    backMachineShort: { pt: "Máquina", es: "Grúa", en: "Claw" },
+    groupLead: { pt: "Enquanto isso, vem conhecer a galera da Toca:", es: "Mientras tanto, vení a conocer a la gente de la Guarida:", en: "Meanwhile, come meet the Den crew:" },
+    groupBtn: { pt: "Entrar no grupo da Toca no WhatsApp", es: "Entrar al grupo de la Guarida en WhatsApp", en: "Join the Den's WhatsApp group" },
+    groupLater: { pt: "O link do grupo chega em breve.", es: "El link del grupo llega muy pronto.", en: "The group link is coming soon." },
+    groupSoon: { pt: "Modo de teste: cole o link do grupo em WHATSAPP_URL, no topo do arquivo.", es: "Modo de prueba: pegá el link del grupo en WHATSAPP_URL, arriba del archivo.", en: "Test mode: paste the group link into WHATSAPP_URL at the top of the file." },
+    guideDoneGroup: { pt: "Recebi! Vou ler com calma. Enquanto isso, cola no grupo da Toca!", es: "¡Lo recibí! Lo voy a leer con calma. Mientras tanto, sumate al grupo de la Guarida.", en: "Got it! I'll read it carefully. Meanwhile, come hang out in the Den's group!" },
+    guideFollow: { pt: "Por enquanto a Toca é só pra criadores, mas segue a gente pra acompanhar as novidades!", es: "Por ahora la Guarida es solo para creadores, ¡pero seguinos para enterarte de las novedades!", en: "For now the Den is just for creators, but follow us to keep up with what's new!" },
+    followTitle: { pt: "Valeu por jogar!", es: "¡Gracias por jugar!", en: "Thanks for playing!" },
+    followText: {
+      pt: "Neste primeiro momento, a Toca da Raposa é só para criadores de conteúdo. Pra ficar por dentro das novidades, segue os perfis da MetaMask e da Ana:",
+      es: "En esta primera etapa, la Guarida del Zorro es solo para creadores de contenido. Para enterarte de las novedades, seguí los perfiles de MetaMask y de Ana:",
+      en: "For now, the Fox Den is just for content creators. To keep up with what's new, follow MetaMask and Ana:"
+    },
+    guideTrader: { pt: "Trader? Adoraria conversar com você sobre o produto!", es: "¿Trader? ¡Me encantaría charlar con vos sobre el producto!", en: "A trader? I'd love to chat with you about the product!" },
+    chatTitle: { pt: "Bora conversar sobre o produto?", es: "¿Charlamos sobre el producto?", en: "Up for a chat about the product?" },
+    chatText: {
+      pt: "Quero ouvir de quem opera e investe: como você usa a MetaMask hoje (ou por que não usa). Deixa seu contato que eu te chamo pra marcar uma conversa rápida.",
+      es: "Quiero escuchar a quienes operan e invierten: cómo usás MetaMask hoy (o por qué no la usás). Dejá tu contacto y te escribo para coordinar una charla corta.",
+      en: "I want to hear from people who trade and invest: how you use MetaMask today (or why you don't). Leave your contact and I'll reach out to book a quick chat."
+    },
+    chatName: { pt: "Nome", es: "Nombre", en: "Name" },
+    chatConsent: { pt: "Autorizo a MetaMask a usar esses dados só para marcar essa conversa.", es: "Autorizo a MetaMask a usar estos datos solo para coordinar esta charla.", en: "I allow MetaMask to use this data only to schedule this chat." },
+    chatBtn: { pt: "Quero conversar", es: "Quiero charlar", en: "I'd like to chat" },
+    chatDone: { pt: "Valeu! Vou te chamar no WhatsApp pra marcar um horário.", es: "¡Gracias! Te escribo por WhatsApp para coordinar un horario.", en: "Thanks! I'll message you on WhatsApp to book a time." },
+    chatBook: { pt: "Prefere escolher o horário agora?", es: "¿Preferís elegir el horario ahora?", en: "Rather pick a time now?" },
+    chatBookBtn: { pt: "Ver minha agenda", es: "Ver mi agenda", en: "See my calendar" },
+    followBack: { pt: "Na verdade, eu crio conteúdo", es: "En realidad, creo contenido", en: "Actually, I create content" },
+    guideDone: { pt: "Recebi! Vou ler com calma e te chamo no WhatsApp.", es: "¡Lo recibí! Lo voy a leer con calma y te escribo por WhatsApp.", en: "Got it! I'll read it carefully and message you on WhatsApp." },
+    noteRole: { pt: "Growth LATAM · MetaMask", es: "Growth LATAM · MetaMask", en: "Growth LATAM · MetaMask" },
+    whoTitle: { pt: "Quem a gente procura", es: "A quién buscamos", en: "Who we're looking for" },
+    whoText: {
+      pt: "Criadores de cripto, claro: traders, educadores, investidores. Mas também gente de música, gastronomia, moda, esporte, humor e lifestyle que tem curiosidade por cripto. De qualquer lugar e de qualquer tamanho. O que une todo mundo: conteúdo honesto e uma comunidade que confia em você.",
+      es: "Creadores de cripto, claro: traders, educadores, inversores. Pero también gente de música, gastronomía, moda, deporte, humor y lifestyle con curiosidad por cripto. De cualquier lugar y de cualquier tamaño. Lo que nos une: contenido honesto y una comunidad que confía en vos.",
+      en: "Crypto creators, of course: traders, educators, investors. But also music, food, fashion, sports, comedy and lifestyle creators who are curious about crypto. From anywhere, with any audience size. What everyone shares: honest content and a community that trusts them.",
+    },
+    start: { pt: "Quero entrar na Toca", es: "Quiero entrar a la Guarida", en: "I want in" },
+    startNote: { pt: "Leva de 5 a 8 minutos.", es: "Te lleva de 5 a 8 minutos.", en: "Takes 5 to 8 minutes." },
+    resume: { pt: "Continuar de onde parei", es: "Seguir donde quedé", en: "Pick up where I left off" },
+    restart: { pt: "Começar do zero", es: "Empezar de cero", en: "Start over" },
+    back: { pt: "Voltar", es: "Volver", en: "Back" },
+    next: { pt: "Continuar", es: "Continuar", en: "Continue" },
+    submit: { pt: "Enviar inscrição", es: "Enviar postulación", en: "Submit application" },
+    sending: { pt: "Enviando…", es: "Enviando…", en: "Sending…" },
+    saved: { pt: "Rascunho salvo neste navegador", es: "Borrador guardado en este navegador", en: "Draft saved in this browser" },
+    required: { pt: "Campo obrigatório", es: "Campo obligatorio", en: "Required" },
+    chooseOne: { pt: "Escolha uma opção", es: "Elegí una opción", en: "Pick one option" },
+    chooseAtLeast: { pt: "Escolha pelo menos uma opção", es: "Elegí al menos una opción", en: "Pick at least one option" },
+    badEmail: { pt: "Confira o e-mail", es: "Revisá el email", en: "Check the email address" },
+    badPhone: { pt: "Confira o número, com código do país e DDD", es: "Revisá el número, con código de país y de área", en: "Check the number, with country and area code" },
+    platMissing: { pt: "Preencha o @ e o tamanho de cada rede marcada", es: "Completá el @ y el tamaño de cada red marcada", en: "Fill in the handle and size for each network you ticked" },
+    upTo: { pt: "até", es: "hasta", en: "up to" },
+    handle: { pt: "@ ou link", es: "@ o link", en: "@ or link" },
+    followers: { pt: "Seguidores", es: "Seguidores", en: "Followers" },
+    select: { pt: "Selecione…", es: "Seleccioná…", en: "Select…" },
+    doneTitle: { pt: "Recebemos sua inscrição", es: "Recibimos tu postulación", en: "Application received" },
+    doneText: {
+      pt: "Obrigada por dedicar esse tempo. Vamos ler tudo com calma e, se fizer sentido, a gente te chama no WhatsApp nas próximas semanas, no número que você deixou aqui.",
+      es: "Gracias por tomarte este tiempo. Vamos a leer todo con calma y, si hay match, te escribimos por WhatsApp en las próximas semanas, al número que dejaste acá.",
+      en: "Thanks for taking the time. We'll read everything carefully and, if it's a fit, we'll message you on WhatsApp in the coming weeks, at the number you left here."
+    },
+    doneContact: { pt: "Dúvidas? Escreva para", es: "¿Dudas? Escribinos a", en: "Questions? Write to" },
+    sendError: {
+      pt: "Não conseguimos enviar agora. Confira sua conexão e tente de novo — suas respostas continuam salvas.",
+      es: "No pudimos enviar ahora. Revisá tu conexión y probá de nuevo — tus respuestas siguen guardadas.",
+      en: "We couldn't send it right now. Check your connection and try again — your answers are still saved."
+    },
+    testMode: {
+      pt: "Modo de teste: nenhuma URL de envio configurada, então as respostas não foram enviadas. Veja abaixo o que seria gravado na planilha.",
+      es: "Modo de prueba: no hay URL de envío configurada, así que las respuestas no se enviaron. Abajo ves lo que se guardaría en la planilla.",
+      en: "Test mode: no submit URL is configured, so nothing was sent. Below is what would be saved to the spreadsheet."
+    },
+    footer: {
+      pt: "Seus dados são usados só para avaliar sua participação na Toca da Raposa e no programa de criadores.",
+      es: "Tus datos se usan solo para evaluar tu participación en la Guarida del Zorro y en el programa de creadores.",
+      en: "Your data is used only to evaluate your participation in the Fox Den and the creator program."
+    }
+  };
+
+  /* -------------------------------------------------------------
+     Listas de opções — o(valor, PT, ES, EN). ES e EN caem no PT se omitidos.
+     ------------------------------------------------------------- */
+  const o = (v, pt, es, en) => ({ v, pt, es: es ?? pt, en: en ?? pt });
+  const YES_MAYBE_NO = [o("yes", "Sim", "Sí", "Yes"), o("maybe", "Talvez", "Tal vez", "Maybe"), o("no", "Não", "No", "No")];
+  const FOLLOWERS = [
+    o("lt5k", "Até 5 mil", "Hasta 5 mil", "Up to 5K"),
+    o("5-20k", "5 a 20 mil", "5 a 20 mil", "5K–20K"),
+    o("20-100k", "20 a 100 mil", "20 a 100 mil", "20K–100K"),
+    o("100-500k", "100 a 500 mil", "100 a 500 mil", "100K–500K"),
+    o("500k-1m", "500 mil a 1 milhão", "500 mil a 1 millón", "500K–1M"),
+    o("1m+", "Mais de 1 milhão", "Más de 1 millón", "Over 1M")
+  ];
+  const PLATFORMS = [
+    o("x", "X (Twitter)"), o("instagram", "Instagram"), o("tiktok", "TikTok"), o("youtube", "YouTube"),
+    o("telegram", "Telegram"), o("discord", "Discord"), o("twitch", "Twitch / Kick"),
+    o("newsletter", "Newsletter / blog"), o("linkedin", "LinkedIn"), o("podcast", "Podcast")
+  ];
+
+  /* -------------------------------------------------------------
+     Perguntas (6 etapas)
+     ------------------------------------------------------------- */
+  const CREATOR_STEPS = [
+    {
+      id: "about",
+      title: { pt: "Sobre você", es: "Sobre vos", en: "About you" },
+      intro: { pt: "O básico para a gente saber com quem está falando.", es: "Lo básico para saber con quién hablamos.", en: "The basics, so we know who we're talking to." },
+      fields: [
+        { id: "name", type: "text", req: true, label: { pt: "Nome", es: "Nombre", en: "Name" }, ac: "name" },
+        { id: "creator_name", type: "text", label: { pt: "Nome artístico / como sua comunidade te chama", es: "Nombre artístico / cómo te conoce tu comunidad", en: "Creator name / what your community calls you" } },
+        { id: "email", type: "email", req: true, label: { pt: "E-mail", es: "Email", en: "Email" }, ac: "email" },
+        { row: [
+          { id: "whatsapp", type: "tel", req: true, label: { pt: "WhatsApp", es: "WhatsApp", en: "WhatsApp" }, ac: "tel",
+            ph: { pt: "+55 11 91234-5678", es: "+54 9 11 1234-5678", en: "+55 11 91234-5678" },
+            help: { pt: "Com código do país e DDD.", es: "Con código de país y de área.", en: "With country and area code." } },
+          { id: "telegram", type: "text", req: true, label: { pt: "Telegram", es: "Telegram", en: "Telegram" }, ph: "@",
+            help: { pt: "Seu @ de usuário.", es: "Tu @ de usuario.", en: "Your @ username." } }
+        ]},
+        { id: "country", type: "radio", req: true, label: { pt: "Onde você mora?", es: "¿Dónde vivís?", en: "Where do you live?" },
+          options: [o("br", "Brasil", "Brasil", "Brazil"), o("ar", "Argentina"), o("latam", "Outro país da América Latina", "Otro país de Latinoamérica", "Another Latin American country")] },
+        { id: "city", type: "text", req: true, label: { pt: "Cidade", es: "Ciudad", en: "City" },
+          help: { pt: "Todo lugar conta.", es: "Todo lugar cuenta.", en: "Every place counts." } },
+        { id: "languages", type: "checks", req: true, label: { pt: "Em quais idiomas você cria conteúdo?", es: "¿En qué idiomas creás contenido?", en: "Which languages do you create content in?" },
+          options: [o("pt", "Português", "Portugués", "Portuguese"), o("es", "Espanhol", "Español", "Spanish"), o("en", "Inglês", "Inglés", "English")] }
+      ]
+    },
+    {
+      id: "audience",
+      title: { pt: "Seu público", es: "Tu audiencia", en: "Your audience" },
+      intro: { pt: "Micro, médio ou grande: todo tamanho interessa. Queremos entender onde sua comunidade está.", es: "Micro, mediano o grande: todos los tamaños nos interesan. Queremos entender dónde está tu comunidad.", en: "Micro, mid or large: every size matters to us. We want to understand where your community is." },
+      fields: [
+        { id: "platforms", type: "platforms", req: true, label: { pt: "Em quais redes você publica?", es: "¿En qué redes publicás?", en: "Which platforms do you post on?" },
+          help: { pt: "Marque as redes e preencha o @ e o tamanho aproximado de cada uma.", es: "Marcá las redes y completá el @ y el tamaño aproximado de cada una.", en: "Tick each platform and add your handle and approximate audience size." } },
+        { id: "main_platform", type: "select", req: true, label: { pt: "Qual é sua rede principal?", es: "¿Cuál es tu red principal?", en: "What's your main platform?" },
+          help: { pt: "Onde sua comunidade mais te acompanha. É lá que iriam os posts da parceria.", es: "Donde más te sigue tu comunidad. Ahí irían los posts de la alianza.", en: "Where your community follows you most. That's where partnership posts would go." },
+          options: () => PLATFORMS.filter(p => (state.data.platforms || {})[p.v]) },
+        { id: "avg_views", type: "radio", req: true, label: { pt: "Média de visualizações por post na rede principal", es: "Promedio de vistas por post en tu red principal", en: "Average views per post on your main platform" },
+          options: [o("lt1k", "Menos de 1 mil", "Menos de 1 mil", "Under 1K"), o("1-5k", "1 a 5 mil", "1 a 5 mil", "1K–5K"), o("5-20k", "5 a 20 mil", "5 a 20 mil", "5K–20K"), o("20-100k", "20 a 100 mil", "20 a 100 mil", "20K–100K"), o("100k+", "Mais de 100 mil", "Más de 100 mil", "Over 100K")] },
+        { id: "audience_geo", type: "radio", req: true, label: { pt: "De onde é a maior parte do seu público?", es: "¿De dónde es la mayor parte de tu audiencia?", en: "Where is most of your audience from?" },
+          options: [o("br", "Principalmente Brasil", "Principalmente Brasil", "Mostly Brazil"), o("ar", "Principalmente Argentina", "Principalmente Argentina", "Mostly Argentina"), o("latam", "América Latina, misturado", "Latinoamérica, mezclado", "Latin America, mixed"), o("global", "Global / em inglês", "Global / en inglés", "Global / English-speaking")] },
+        { id: "growth", type: "radio", req: true, label: { pt: "Nos últimos 6 meses, seu público está…", es: "En los últimos 6 meses, tu audiencia está…", en: "Over the last 6 months, your audience has been…" },
+          options: [o("fast", "Crescendo rápido", "Creciendo rápido", "Growing fast"), o("slow", "Crescendo devagar", "Creciendo de a poco", "Growing slowly"), o("flat", "Estável", "Estable", "Flat"), o("down", "Caindo", "Bajando", "Shrinking")] },
+        { id: "best_content", type: "url", req: true, label: { pt: "Link do conteúdo que você mais se orgulha", es: "Link del contenido del que estás más orgulloso/a", en: "Link to the piece of content you're proudest of" },
+          help: { pt: "Pode ser um vídeo, thread, live… o que melhor mostra seu estilo.", es: "Puede ser un video, hilo, stream… lo que mejor muestre tu estilo.", en: "A video, thread, stream… whatever best shows your style." }, ph: "https://" },
+        { id: "media_kit", type: "url", label: { pt: "Media kit ou métricas (opcional)", es: "Media kit o métricas (opcional)", en: "Media kit or metrics (optional)" }, ph: "https://" }
+      ]
+    },
+    {
+      id: "content",
+      title: { pt: "Seu conteúdo", es: "Tu contenido", en: "Your content" },
+      intro: { pt: "Queremos uma mistura saudável de traders, educadores, investidores e personalidades.", es: "Buscamos una mezcla sana de traders, educadores, inversores y personalidades.", en: "We want a healthy mix of traders, educators, investors and personalities." },
+      fields: [
+        { id: "profile", type: "checks", req: true, max: 2, label: { pt: "Como você se descreve?", es: "¿Cómo te describirías?", en: "How would you describe yourself?" },
+          options: [o("trader", "Trader"), o("educator", "Educador(a)", "Educador/a", "Educator"), o("investor", "Investidor(a) / analista", "Inversor/a / analista", "Investor / analyst"),
+            o("news", "Notícias e pesquisa", "Noticias e investigación", "News and research"), o("lifestyle", "Lifestyle e entretenimento", "Lifestyle y entretenimiento", "Lifestyle and entertainment"),
+            o("builder", "Builder / dev"), o("culture", "Arte, música e cultura", "Arte, música y cultura", "Art, music and culture")] },
+        { id: "topics", type: "checks", req: true, label: { pt: "Sobre o que você fala?", es: "¿De qué hablás?", en: "What do you talk about?" },
+          options: [o("perps", "Trading e perps", "Trading y perps", "Trading and perps"), o("defi", "DeFi"), o("memes", "Memecoins"), o("stocks", "Ações tokenizadas e RWA", "Acciones tokenizadas y RWA", "Tokenized stocks and RWAs"),
+            o("payments", "Pagamentos e cartão cripto", "Pagos y tarjeta cripto", "Payments and crypto cards"), o("security", "Segurança e autocustódia", "Seguridad y autocustodia", "Security and self-custody"),
+            o("ai", "IA", "IA", "AI"), o("personal", "Finanças pessoais", "Finanzas personales", "Personal finance"), o("nft", "NFTs e cultura on-chain", "NFTs y cultura on-chain", "NFTs and on-chain culture"),
+            o("music", "Música", "Música", "Music"), o("food", "Gastronomia", "Gastronomía", "Food"), o("fashion", "Moda e beleza", "Moda y belleza", "Fashion and beauty"),
+            o("sports", "Esporte", "Deporte", "Sports"), o("comedy", "Humor e entretenimento", "Humor y entretenimiento", "Comedy and entertainment"),
+            o("lifestyle", "Lifestyle e viagem", "Lifestyle y viajes", "Lifestyle and travel"), o("tech", "Tecnologia", "Tecnología", "Tech")] },
+        { id: "formats", type: "checks", req: true, label: { pt: "Formatos que você mais produz", es: "Formatos que más producís", en: "Formats you produce most" },
+          options: [o("short", "Vídeo curto (Reels, TikTok, Shorts)", "Video corto (Reels, TikTok, Shorts)", "Short video (Reels, TikTok, Shorts)"), o("long", "Vídeo longo", "Video largo", "Long-form video"),
+            o("threads", "Threads e posts de texto", "Hilos y posts de texto", "Threads and text posts"), o("lives", "Lives / streams"),
+            o("static", "Carrosséis e posts estáticos", "Carruseles y posts estáticos", "Carousels and static posts"), o("newsletter", "Newsletter"),
+            o("community", "Comunidade própria (Telegram, Discord)", "Comunidad propia (Telegram, Discord)", "Own community (Telegram, Discord)")] },
+        { id: "years", type: "radio", req: true, label: { pt: "Há quanto tempo você cria conteúdo sobre cripto?", es: "¿Hace cuánto creás contenido sobre cripto?", en: "How long have you been creating crypto content?" },
+          options: [o("none", "Ainda não falo de cripto", "Todavía no hablo de cripto", "I don't cover crypto yet"), o("lt1", "Menos de 1 ano", "Menos de 1 año", "Less than 1 year"), o("1-2", "1 a 2 anos", "1 a 2 años", "1–2 years"), o("2-4", "2 a 4 anos", "2 a 4 años", "2–4 years"), o("4+", "Mais de 4 anos", "Más de 4 años", "4+ years")] },
+        { id: "two_years", type: "textarea", req: true, label: { pt: "Onde você quer estar daqui a 2 anos como criador(a)?", es: "¿Dónde querés estar dentro de 2 años como creador/a?", en: "Where do you want to be as a creator two years from now?" },
+          help: { pt: "Sem resposta certa. Queremos entender sua ambição e seus planos.", es: "No hay respuesta correcta. Queremos entender tu ambición y tus planes.", en: "There's no right answer. We want to understand your ambition and plans." } }
+      ]
+    },
+    {
+      id: "metamask",
+      title: { pt: "Você e a MetaMask", es: "Vos y MetaMask", en: "You and MetaMask" },
+      intro: { pt: "Queremos gente que curte o produto de verdade. Seja sincero(a): críticas valem tanto quanto elogios.", es: "Buscamos gente a la que le guste el producto de verdad. Sé sincero/a: las críticas valen tanto como los elogios.", en: "We want people who genuinely like the product. Be honest: criticism counts as much as praise." },
+      fields: [
+        { id: "mm_usage", type: "radio", req: true, label: { pt: "Com que frequência você usa a MetaMask?", es: "¿Con qué frecuencia usás MetaMask?", en: "How often do you use MetaMask?" },
+          options: [o("daily", "Todo dia", "Todos los días", "Every day"), o("weekly", "Toda semana", "Todas las semanas", "Every week"), o("sometimes", "De vez em quando", "De vez en cuando", "Now and then"),
+            o("past", "Já usei, hoje não", "La usé, hoy no", "I used to, not anymore"), o("never", "Nunca usei", "Nunca la usé", "Never used it")] },
+        { id: "mm_features", type: "checks", label: { pt: "O que você já usou no app?", es: "¿Qué ya usaste en la app?", en: "What have you used in the app?" },
+          showIf: d => d.mm_usage && d.mm_usage !== "never",
+          options: [o("swaps", "Swaps"), o("bridge", "Bridges"), o("perps", "Perps"), o("social", "Social trading / copy trading"),
+            o("card", "Cartão MetaMask", "Tarjeta MetaMask", "MetaMask Card"), o("money", "Money Account / mUSD"), o("earn", "Stake e rendimentos", "Stake y rendimientos", "Staking and yield"),
+            o("predictions", "Mercados de previsão", "Mercados de predicción", "Prediction markets"), o("stocks", "Ações tokenizadas", "Acciones tokenizadas", "Tokenized stocks")] },
+        { id: "trading", type: "radio", req: true, stack: true, label: { pt: "E trading, como é para você?", es: "¿Y el trading, cómo es para vos?", en: "And trading, what's that like for you?" },
+          options: [o("none", "Não opero", "No opero", "I don't trade"), o("casual", "Opero às vezes", "Opero a veces", "I trade occasionally"), o("weekly", "Opero toda semana", "Opero todas las semanas", "I trade every week"),
+            o("daily", "Opero todo dia, é parte do meu trabalho", "Opero todos los días, es parte de mi trabajo", "I trade daily, it's part of my work")] },
+        { id: "public_trades", type: "radio", req: true, stack: true,
+          label: { pt: "Você toparia postar suas operações no feed social da MetaMask, com a tese por trás?", es: "¿Te animarías a publicar tus operaciones en el feed social de MetaMask, con la tesis detrás?", en: "Would you post your trades on MetaMask's social feed, with the thesis behind them?" },
+          help: { pt: "Ganhar ou perder não importa. O que conta é a atividade e o raciocínio.", es: "Ganar o perder no importa. Lo que cuenta es la actividad y el razonamiento.", en: "Winning or losing doesn't matter. What counts is the activity and the reasoning." },
+          options: [o("yes", "Sim, topo", "Sí, me animo", "Yes, I'm in"), o("maybe", "Talvez, depende do formato", "Tal vez, depende del formato", "Maybe, depends on the format"), o("no", "Prefiro não expor minhas operações", "Prefiero no exponer mis operaciones", "I'd rather not share my trades")] },
+        { id: "alt_formats", type: "checks", req: true, label: { pt: "No lugar das operações, o que você faria?", es: "En lugar de las operaciones, ¿qué harías?", en: "Instead of trades, what would you do?" },
+          showIf: d => d.public_trades === "no" || d.public_trades === "maybe",
+          options: [o("newsletter", "Newsletter"), o("blog", "Artigos / blog", "Artículos / blog", "Articles / blog"), o("edu", "Conteúdo educativo extra", "Contenido educativo extra", "Extra educational content"), o("lives", "Lives / AMAs")] },
+        { id: "why_mm", type: "textarea", req: true, label: { pt: "Por que a MetaMask? O que você gosta e o que te irrita no app?", es: "¿Por qué MetaMask? ¿Qué te gusta y qué te molesta de la app?", en: "Why MetaMask? What do you like and what annoys you about the app?" } },
+        { id: "community_asks", type: "textarea", req: true, label: { pt: "O que sua comunidade mais pede ou reclama sobre wallets e exchanges?", es: "¿Qué es lo que más pide o reclama tu comunidad sobre wallets y exchanges?", en: "What does your community ask for or complain about most with wallets and exchanges?" },
+          help: { pt: "Isso vai direto para o time de produto.", es: "Esto va directo al equipo de producto.", en: "This goes straight to the product team." } }
+      ]
+    },
+    {
+      id: "partnership",
+      title: { pt: "Formato da parceria", es: "Formato de la alianza", en: "Partnership format" },
+      callout: {
+        title: { pt: "Nosso formato base (ajustável para cada criador)", es: "Nuestro formato base (ajustable para cada creador)", en: "Our baseline format (adjusted for each creator)" },
+        items: {
+          pt: ["4 posts públicos por mês, no canal onde está seu público", "10 operações por mês no feed social do app, com a tese por trás", "1 conversa de 1 hora por mês com o time de produto"],
+          es: ["4 posts públicos por mes, en el canal donde está tu audiencia", "10 operaciones por mes en el feed social de la app, con la tesis detrás", "1 charla de 1 hora por mes con el equipo de producto"],
+          en: ["4 public posts a month, wherever your audience is", "10 trades a month on the app's social feed, with the thesis behind them", "One 1-hour conversation a month with the product team"]
+        },
+        note: { pt: "Não pedimos exclusividade: você segue livre para falar de outros projetos.", es: "No pedimos exclusividad: seguís libre para hablar de otros proyectos.", en: "No exclusivity: you're free to talk about other projects." }
+      },
+      fields: [
+        { id: "commit_posts", type: "radio", req: true, label: { pt: "4 posts por mês sobre a MetaMask funcionam para você?", es: "¿4 posts por mes sobre MetaMask te funcionan?", en: "Do 4 posts a month about MetaMask work for you?" }, options: YES_MAYBE_NO },
+        { id: "commit_interview", type: "radio", req: true, label: { pt: "E 1 conversa mensal de 1 hora com o time de produto?", es: "¿Y 1 charla mensual de 1 hora con el equipo de producto?", en: "And one 1-hour monthly conversation with the product team?" }, options: YES_MAYBE_NO },
+        { id: "in_person", type: "radio", req: true,
+          label: { pt: "Teremos experiências presenciais em São Paulo e Buenos Aires no 1º trimestre de 2027, com gravação de conteúdo. Você participaria?", es: "Vamos a tener experiencias presenciales en São Paulo y Buenos Aires en el primer trimestre de 2027, con grabación de contenido. ¿Participarías?", en: "We'll host in-person experiences in São Paulo and Buenos Aires in Q1 2027, with content shoots. Would you take part?" },
+          options: [o("yes", "Sim, conta comigo", "Sí, contá conmigo", "Yes, count me in"), o("depends", "Depende das datas", "Depende de las fechas", "Depends on the dates"), o("no", "Não consigo", "No puedo", "I can't")] },
+        { id: "camera", type: "radio", req: true, label: { pt: "Como você se sente na frente da câmera?", es: "¿Cómo te sentís frente a cámara?", en: "How do you feel on camera?" },
+          options: [o("love", "Amo câmera", "Amo la cámara", "I love it"), o("ok", "Fico tranquilo(a)", "Me siento cómodo/a", "I'm comfortable"), o("backstage", "Prefiro os bastidores", "Prefiero estar detrás de cámara", "I prefer behind the scenes")] },
+        { id: "talents", type: "checks", label: { pt: "Algum talento além do cripto?", es: "¿Algún talento además de cripto?", en: "Any talents beyond crypto?" },
+          help: { pt: "As experiências envolvem gastronomia, música, arte e moda. Conte o que você manda bem.", es: "Las experiencias incluyen gastronomía, música, arte y moda. Contanos en qué sos bueno/a.", en: "The experiences involve food, music, art and fashion. Tell us what you're good at." },
+          options: [o("cooking", "Cozinha", "Cocina", "Cooking"), o("music", "Música / DJ", "Música / DJ", "Music / DJ"), o("art", "Arte e ilustração", "Arte e ilustración", "Art and illustration"), o("fashion", "Moda e styling", "Moda y styling", "Fashion and styling"),
+            o("photo", "Foto e vídeo", "Foto y video", "Photo and video"), o("sports", "Esporte", "Deporte", "Sports"), o("comedy", "Humor", "Humor", "Comedy")] },
+        { id: "agency", type: "radio", req: true, label: { pt: "Você trabalha com agência ou empresário(a)?", es: "¿Trabajás con agencia o manager?", en: "Do you work with an agency or manager?" },
+          options: [o("no", "Não, falo direto", "No, hablo directo", "No, I deal directly"), o("yes", "Sim", "Sí", "Yes")] },
+        { id: "agency_name", type: "text", req: true, label: { pt: "Qual agência?", es: "¿Qué agencia?", en: "Which agency?" }, showIf: d => d.agency === "yes" },
+        { id: "exclusive", type: "radio", req: true, label: { pt: "Hoje você tem contrato de exclusividade com alguma wallet ou exchange?", es: "¿Hoy tenés contrato de exclusividad con alguna wallet o exchange?", en: "Do you currently have an exclusivity deal with any wallet or exchange?" },
+          options: [o("no", "Não", "No", "No"), o("yes", "Sim", "Sí", "Yes")] },
+        { id: "exclusive_with", type: "text", req: true, label: { pt: "Com quem e até quando?", es: "¿Con quién y hasta cuándo?", en: "With whom, and until when?" }, showIf: d => d.exclusive === "yes" },
+        { id: "past_brands", type: "textarea", label: { pt: "Marcas cripto com quem você já trabalhou (opcional)", es: "Marcas cripto con las que ya trabajaste (opcional)", en: "Crypto brands you've worked with (optional)" } },
+        { id: "rate", type: "select", req: true, label: { pt: "Quanto você cobraria por mês pelo formato base?", es: "¿Cuánto cobrarías por mes por el formato base?", en: "What would you charge per month for the baseline format?" },
+          help: { pt: "Valor em dólar. Serve só de referência para a conversa.", es: "Valor en dólares. Es solo una referencia para la charla.", en: "In US dollars. Just a reference point for the conversation." },
+          options: [o("lt500", "Até US$ 500", "Hasta US$ 500", "Up to US$500"), o("500-1500", "US$ 500 – 1.500", "US$ 500 – 1.500", "US$500 – 1,500"), o("1500-3000", "US$ 1.500 – 3.000", "US$ 1.500 – 3.000", "US$1,500 – 3,000"), o("3000-7000", "US$ 3.000 – 7.000", "US$ 3.000 – 7.000", "US$3,000 – 7,000"),
+            o("7000-15000", "US$ 7.000 – 15.000", "US$ 7.000 – 15.000", "US$7,000 – 15,000"), o("15000+", "Mais de US$ 15.000", "Más de US$ 15.000", "Over US$15,000"), o("talk", "Prefiro conversar", "Prefiero conversarlo", "I'd rather discuss it")] }
+      ]
+    },
+    {
+      id: "trust",
+      title: { pt: "Confiança", es: "Confianza", en: "Trust" },
+      intro: { pt: "Nossos criadores aparecem no app com selo de verificado. Por isso a transparência pesa muito.", es: "Nuestros creadores aparecen en la app con sello de verificado. Por eso la transparencia pesa mucho.", en: "Our creators appear in the app with a verified badge. That's why transparency matters so much." },
+      fields: [
+        { id: "disclosure", type: "radio", req: true, label: { pt: "Quando faz conteúdo pago, você sinaliza (#publi, #ad)?", es: "Cuando hacés contenido pago, ¿lo indicás (#publi, #ad)?", en: "When you make paid content, do you disclose it (#ad)?" },
+          options: [o("always", "Sempre", "Siempre", "Always"), o("sometimes", "Às vezes", "A veces", "Sometimes"), o("never_paid", "Nunca fiz conteúdo pago", "Nunca hice contenido pago", "I've never done paid content")] },
+        { id: "past_promo", type: "radio", req: true, label: { pt: "Já promoveu algum projeto que depois se revelou golpe ou rug pull?", es: "¿Alguna vez promocionaste un proyecto que después resultó ser estafa o rug pull?", en: "Have you ever promoted a project that later turned out to be a scam or rug pull?" },
+          help: { pt: "Acontece. Valorizamos a honestidade mais do que um histórico perfeito.", es: "Pasa. Valoramos la honestidad más que un historial perfecto.", en: "It happens. We value honesty more than a perfect track record." },
+          options: [o("no", "Não", "No", "No"), o("yes", "Sim", "Sí", "Yes")] },
+        { id: "past_promo_story", type: "textarea", req: true, label: { pt: "Conte o que aconteceu e como você lidou com isso.", es: "Contanos qué pasó y cómo lo manejaste.", en: "Tell us what happened and how you handled it." }, showIf: d => d.past_promo === "yes" },
+        { id: "referral", type: "text", label: { pt: "Quem te indicou ou onde você viu este formulário?", es: "¿Quién te recomendó o dónde viste este formulario?", en: "Who referred you, or where did you see this form?" } },
+        { id: "anything_else", type: "textarea", label: { pt: "Algo mais que a gente deveria saber? (opcional)", es: "¿Algo más que deberíamos saber? (opcional)", en: "Anything else we should know? (optional)" } },
+        { id: "consent", type: "consent", req: true,
+          label: {
+            pt: "Autorizo a MetaMask a usar estes dados apenas para avaliar minha participação na Toca da Raposa e no programa de criadores e entrar em contato comigo, conforme a LGPD.",
+            es: "Autorizo a MetaMask a usar estos datos solo para evaluar mi participación en la Guarida del Zorro y en el programa de creadores y contactarme, conforme a la Ley 25.326 de Protección de Datos Personales.",
+            en: "I authorize MetaMask to use this data only to evaluate my participation in the Fox Den and the creator program and to contact me, under Brazil's LGPD and Argentina's Personal Data Protection Law 25.326."
+          } }
+      ]
+    }
+  ];
+
+  /* -------------------------------------------------------------
+     Identidade (1ª etapa) e trilha de produto (quem não é criador)
+     ------------------------------------------------------------- */
+  const CF = (id) => { for (const st of CREATOR_STEPS) for (const f of st.fields) { if (f.id === id) return f; if (f.row) { const r = f.row.find(x => x.id === id); if (r) return r; } } };
+  const IDENTITY_STEP = {
+    id: "identity",
+    title: { pt: "Quem é você", es: "Quién sos", en: "Who you are" },
+    intro: { pt: "Por enquanto, a Toca da Raposa é focada em criadores de conteúdo.", es: "Por ahora, la Guarida del Zorro está enfocada en creadores de contenido.", en: "For now, the Fox Den is focused on content creators." },
+    fields: [
+      { id: "identity", type: "radio", req: true, stack: true, label: { pt: "Como você se identifica?", es: "¿Cómo te identificás?", en: "How do you identify?" },
+        options: [o("creator", "Criador(a) de conteúdo", "Creador/a de contenido", "Content creator"),
+          o("trader", "Trader / investidor(a)", "Trader / inversor/a", "Trader / investor"),
+          o("builder", "Builder / dev"),
+          o("daily", "Uso cripto no dia a dia", "Uso cripto en el día a día", "I use crypto day to day"),
+          o("business", "Empresa ou projeto parceiro", "Empresa o proyecto aliado", "Company or partner project"),
+          o("community", "Organizo comunidade ou eventos", "Organizo comunidad o eventos", "I run a community or events"),
+          o("other", "Outro", "Otro", "Other")] },
+      { id: "identity_other", type: "text", req: true, label: { pt: "Qual?", es: "¿Cuál?", en: "Which?" }, showIf: d => d.identity === "other" }
+    ]
+  };
+  // quem não é criador(a) responde só a identidade e vê a tela "Siga a Ana" (foco inicial: criadores)
+  const isCreator = () => state.data.identity === "creator" || !state.data.identity;
+  function steps() { return [IDENTITY_STEP, ...(isCreator() ? CREATOR_STEPS : [])]; }
+
+  /* -------------------------------------------------------------
+     Estado
+     ------------------------------------------------------------- */
+  const params = new URLSearchParams(location.search);
+  const DEBUG = params.get("debug") === "1";   // ?debug=1 mostra o que seria gravado na planilha (modo de teste)
+  const state = { lang: "pt", step: -1, data: {}, done: false, sending: false, error: false, testPayload: null };
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORE_KEY);
+      if (raw) { const s = JSON.parse(raw); state.data = s.data || {}; state.savedStep = s.step || 0; if (LANGS.includes(s.lang)) state.lang = s.lang; }
+    } catch (e) { /* storage indisponível: segue sem rascunho */ }
+    const qp = params.get("lang");
+    if (LANGS.includes(qp)) state.lang = qp;
+    else if (!state.data.__langSet && /^es/i.test(navigator.language || "")) state.lang = "es";
+  }
+  function save() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify({ data: state.data, step: Math.max(state.step, 0), lang: state.lang })); } catch (e) {}
+  }
+  function clearDraft() { try { localStorage.removeItem(STORE_KEY); } catch (e) {} }
+
+  const t = (obj) => (obj ? (obj[state.lang] ?? obj.pt) : "");
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const app = document.getElementById("app");
+  const foot = document.getElementById("foot");
+
+  function allFields(step) {
+    const out = [];
+    step.fields.forEach(f => f.row ? out.push(...f.row) : out.push(f));
+    return out;
+  }
+  const visible = (f) => !f.showIf || f.showIf(state.data);
+  const optsOf = (f) => typeof f.options === "function" ? f.options() : (f.options || []);
+
+  /* -------------------------------------------------------------
+     Render
+     ------------------------------------------------------------- */
+  /* ---------- Ana's floating guide: one line per section while scrolling, one per step ---------- */
+  const guideWrap = document.getElementById("guideWrap"), guideBubble = document.getElementById("guideBubble");
+  document.getElementById("guideAva").src = ANA_PHOTO;
+  let guideText = "", guideT = 0;
+  function say(text){
+    if (!text || text === guideText) return;
+    guideText = text; clearTimeout(guideT);
+    guideBubble.classList.remove("in"); guideBubble.classList.add("typing");
+    const ava = document.getElementById("guideAva"); ava.classList.remove("hop"); void ava.offsetWidth; ava.classList.add("hop");
+    guideBubble.innerHTML = '<span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>';
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    guideT = setTimeout(() => { guideBubble.classList.remove("typing"); guideBubble.textContent = text; void guideBubble.offsetWidth; guideBubble.classList.add("in"); guideMove(); }, reduce ? 0 : 520);
+  }
+  function guideIntroIndex(){
+    const marks = [".hero", ".hero .lead2", ".section-title", ".perks .p3", ".cta-bottom"].map(q => app.querySelector(q));
+    let k = 0;
+    marks.forEach((el, i) => { if (el && el.getBoundingClientRect().top < innerHeight * (i === marks.length - 1 ? .8 : .38)) k = i; });
+    return k;
+  }
+  // left -> right depending on where the person is
+  function guideMove(){
+    const g = guideWrap.querySelector(".guide");
+    let p = 0;
+    if (state.done) p = 1;
+    else if (state.step < 0){ const max = document.documentElement.scrollHeight - innerHeight; p = max > 0 ? window.scrollY / max : 0; }
+    else { const n = steps().length; p = n > 1 ? state.step / (n - 1) : 0; }
+    const cs = getComputedStyle(guideWrap), room = guideWrap.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - g.offsetWidth;
+    g.style.translate = `${Math.max(0, room) * Math.min(1, Math.max(0, p))}px 0`;
+  }
+  addEventListener("resize", () => guideMove());
+  function guideUpdate(){
+    document.getElementById("guideRole").textContent = t(UI.noteRole);
+    guideWrap.classList.toggle("float", !state.done && state.step < 0);
+    guideWrap.classList.toggle("stuck", !state.done && state.step < 0 && window.scrollY > 24);
+    if (state.done) say(t(state.data.identity === "trader" ? UI.guideTrader : !isCreator() ? UI.guideFollow : showGroup() && CFG.WHATSAPP_URL ? UI.guideDoneGroup : UI.guideDone));
+    else if (state.step < 0) { const gi = guideIntroIndex(); say(gi === 0 && (params.has("fox") || params.has("shared")) ? t(UI.guideBack) : UI.guideIntro[state.lang][gi]); }
+    else { const st = steps()[state.step]; say(st && UI.guideStep[st.id] ? t(UI.guideStep[st.id]) : ""); }
+    guideMove();
+  }
+  let guideRAF = 0;
+  addEventListener("scroll", () => { if (state.step >= 0 || state.done || guideRAF) return; guideRAF = requestAnimationFrame(() => { guideRAF = 0; guideUpdate(); }); }, { passive: true });
+
+  const HTML_LANG = { pt: "pt-BR", es: "es-AR", en: "en" };
+  function render() {
+    document.documentElement.lang = HTML_LANG[state.lang];
+    document.querySelectorAll(".lang button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lang === state.lang)));
+    foot.textContent = t(UI.footer);
+    const bt = document.getElementById("brandTitle"); if (bt) bt.textContent = t(UI.brandName);
+    const bm = document.getElementById("backMachine");
+    if (bm){ const q = new URLSearchParams(); q.set("lang", state.lang); for (const k of ["ref", "utm_source"]) if (params.get(k)) q.set(k, params.get(k));
+      bm.href = (CFG.MACHINE_URL || "toca-da-raposa.html") + "?" + q.toString();
+      bm.querySelector(".bm-long").textContent = t(UI.backMachine); bm.querySelector(".bm-short").textContent = t(UI.backMachineShort); bm.setAttribute("aria-label", t(UI.backMachine)); }
+    if (state.done) renderDone();
+    else if (state.step < 0) renderIntro();
+    else renderStep();
+    guideUpdate();
+  }
+
+  function renderIntro() {
+    const hasDraft = state.savedStep !== undefined && Object.keys(state.data).filter(k => !k.startsWith("__")).length > 0;
+    const ctas = (onDark) => hasDraft
+      ? `<button class="btn btn-primary" data-act="resume">${esc(t(UI.resume))} <span class="arrow">→</span></button>
+         <button class="btn btn-ghost ${onDark ? "on-dark" : ""}" data-act="restart">${esc(t(UI.restart))}</button>`
+      : `<button class="btn btn-primary" data-act="start">${esc(t(UI.start))} <span class="arrow">→</span></button>`;
+    app.innerHTML = `
+      <section class="hero">
+        <div class="shapes" aria-hidden="true"><span class="s1"></span><span class="s2"></span><span class="s3"></span></div>
+        <span class="eyebrow">${esc(t(UI.eyebrow))}</span>
+        <h1>${t(UI.h1)}</h1>
+        <p>${esc(t(UI.lead))}</p>
+        <p class="lead2">${esc(t(UI.lead2))}</p>
+        <ul class="facts">${UI.facts[state.lang].map(f => `<li>${esc(f)}</li>`).join("")}</ul>
+        <div style="display:flex;flex-wrap:wrap;gap:10px">${ctas(true)}</div>
+      </section>
+
+      <h2 class="section-title">${esc(t(UI.perksTitle))}</h2>
+      <div class="perks">
+        ${UI.perks.map((p, i) => `
+          <article class="perk p${i + 1}">
+            <span class="num">${String(i + 1).padStart(2, "0")}</span>
+            <h3>${esc(t(p.h))}</h3>
+            <p>${esc(t(p.p))}</p>
+          </article>`).join("")}
+      </div>
+      <div class="who">
+        <h3>${esc(t(UI.whoTitle))}</h3>
+        <p>${esc(t(UI.whoText))}</p>
+      </div>
+      <div class="cta-bottom">${ctas(false)} ${hasDraft ? "" : `<span>${esc(t(UI.startNote))}</span>`}</div>`;
+  }
+
+  function fieldHTML(f) {
+    if (!visible(f)) return "";
+    const id = "f_" + f.id;
+    const val = state.data[f.id];
+    const reqMark = f.req ? `<span class="req" aria-hidden="true">*</span>` : "";
+    const help = f.help ? `<span class="help" id="${id}_h">${esc(t(f.help))}</span>` : "";
+    const err = `<span class="err" id="${id}_e" role="alert"></span>`;
+    const desc = `aria-describedby="${f.help ? id + "_h " : ""}${id}_e"`;
+    const lab = t(f.label);
+    const L = state.lang;
+
+    switch (f.type) {
+      case "text": case "email": case "url": case "tel":
+        return `<div class="field" data-f="${f.id}">
+          <label class="q" for="${id}">${esc(lab)}${reqMark}</label>${help}
+          <input id="${id}" name="${f.id}" type="${["url", "email", "tel"].includes(f.type) ? f.type : "text"}" value="${esc(val)}" ${f.type === "tel" ? 'inputmode="tel"' : ""}
+            ${f.ph ? `placeholder="${esc(typeof f.ph === "object" ? t(f.ph) : f.ph)}"` : ""} ${f.ac ? `autocomplete="${f.ac}"` : ""} ${f.req ? 'aria-required="true"' : ""} ${desc}>
+          ${err}</div>`;
+      case "textarea":
+        return `<div class="field" data-f="${f.id}">
+          <label class="q" for="${id}">${esc(lab)}${reqMark}</label>${help}
+          <textarea id="${id}" name="${f.id}" ${f.req ? 'aria-required="true"' : ""} ${desc}>${esc(val)}</textarea>${err}</div>`;
+      case "select": {
+        const opts = optsOf(f);
+        return `<div class="field" data-f="${f.id}">
+          <label class="q" for="${id}">${esc(lab)}${reqMark}</label>${help}
+          <select id="${id}" name="${f.id}" ${f.req ? 'aria-required="true"' : ""} ${desc}>
+            <option value="">${esc(t(UI.select))}</option>
+            ${opts.map(op => `<option value="${op.v}" ${val === op.v ? "selected" : ""}>${esc(op[L])}</option>`).join("")}
+          </select>${err}</div>`;
+      }
+      case "radio": case "checks": {
+        const multi = f.type === "checks";
+        const arr = multi ? (val || []) : null;
+        const atMax = multi && f.max && arr.length >= f.max;
+        const counter = multi && f.max ? `<span class="counter">${esc(t(UI.upTo))} ${f.max}</span>` : "";
+        return `<fieldset class="field" data-f="${f.id}" ${desc}>
+          <legend>${esc(lab)}${reqMark}${counter}</legend>${help || '<div class="q-spacer"></div>'}
+          <div class="chips ${f.stack ? "stack" : ""}">
+            ${optsOf(f).map(op => {
+              const checked = multi ? arr.includes(op.v) : val === op.v;
+              return `<label class="chip"><input type="${multi ? "checkbox" : "radio"}" name="${f.id}" value="${op.v}" ${checked ? "checked" : ""} ${atMax && !checked ? "disabled" : ""}><span>${esc(op[L])}</span></label>`;
+            }).join("")}
+          </div>${err}</fieldset>`;
+      }
+      case "platforms": {
+        const p = val || {};
+        return `<fieldset class="field" data-f="${f.id}" ${desc}>
+          <legend>${esc(lab)}${reqMark}</legend>${help}
+          <div class="chips">
+            ${PLATFORMS.map(op => `<label class="chip"><input type="checkbox" name="platforms" value="${op.v}" ${p[op.v] ? "checked" : ""}><span>${esc(op[L])}</span></label>`).join("")}
+          </div>
+          <div class="plat-rows">
+            ${PLATFORMS.filter(op => p[op.v]).map(op => `
+              <div class="plat-row">
+                <span class="pname">${esc(op[L])}</span>
+                <input type="text" data-plat="${op.v}" data-k="handle" value="${esc(p[op.v].handle)}" placeholder="${esc(t(UI.handle))}" aria-label="${esc(op[L])} — ${esc(t(UI.handle))}">
+                <select data-plat="${op.v}" data-k="followers" aria-label="${esc(op[L])} — ${esc(t(UI.followers))}">
+                  <option value="">${esc(t(UI.followers))}…</option>
+                  ${FOLLOWERS.map(fo => `<option value="${fo.v}" ${p[op.v].followers === fo.v ? "selected" : ""}>${esc(fo[L])}</option>`).join("")}
+                </select>
+              </div>`).join("")}
+          </div>${err}</fieldset>`;
+      }
+      case "consent":
+        return `<div class="field" data-f="${f.id}">
+          <label class="consent"><input type="checkbox" name="${f.id}" ${val ? "checked" : ""} ${desc}><span>${esc(lab)}${reqMark}</span></label>${err}</div>`;
+    }
+    return "";
+  }
+
+  function renderStep() {
+    const all = steps(), step = all[state.step];
+    const n = all.length;
+    const last = state.step === n - 1;
+    const callout = step.callout ? `
+      <div class="callout">
+        <h3>${esc(t(step.callout.title))}</h3>
+        <ul>${step.callout.items[state.lang].map(i => `<li>${esc(i)}</li>`).join("")}</ul>
+        <p>${esc(t(step.callout.note))}</p>
+      </div>` : "";
+    app.innerHTML = `
+      <div class="progress">
+        <div class="progress-meta">
+          <span class="step-count">${String(state.step + 1).padStart(2, "0")} / ${String(n).padStart(2, "0")}</span>
+        </div>
+        <div class="bars" aria-hidden="true" style="grid-template-columns:repeat(${n},1fr)">${all.map((_, i) => `<span class="${i < state.step ? "done" : i === state.step ? "on" : ""}"></span>`).join("")}</div>
+      </div>
+      <form class="card" novalidate>
+        <h2>${esc(t(step.title))}</h2>
+        ${step.intro ? `<p class="intro">${esc(t(step.intro))}</p>` : ""}
+        ${callout}
+        ${step.fields.map(f => f.row
+          ? (f.row.some(visible) ? `<div class="row2">${f.row.map(fieldHTML).join("")}</div>` : "")
+          : fieldHTML(f)).join("")}
+        ${state.error ? `<div class="testmode" role="alert" style="background:#fde8ea;color:#7a1520">${esc(t(UI.sendError))}</div>` : ""}
+        <div class="nav">
+          <button type="button" class="btn btn-ghost" data-act="back">← ${esc(t(UI.back))}</button>
+          <span class="saved spacer" style="text-align:center">${esc(t(UI.saved))}</span>
+          <button type="submit" class="btn ${last ? "btn-primary" : "btn-ink"}" ${state.sending ? "disabled" : ""}>
+            ${esc(state.sending ? t(UI.sending) : last && isCreator() ? t(UI.submit) : t(UI.next))} ${state.sending ? "" : '<span class="arrow">→</span>'}
+          </button>
+        </div>
+      </form>`;
+  }
+
+  const showGroup = () => isCreator();
+  function groupHTML(){
+    if (!showGroup()) return "";
+    if (CFG.WHATSAPP_URL) return `<div class="group"><p>${esc(t(UI.groupLead))}</p>
+      <a class="btn btn-wa" href="${esc(CFG.WHATSAPP_URL)}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3a.5.5 0 0 0 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.5-.3Z"/></svg> ${esc(t(UI.groupBtn))}</a></div>`;
+    return CFG.SUBMIT_URL ? "" : `<div class="group"><p>${esc(t(UI.groupLead))}</p><span class="btn btn-wa is-off" aria-disabled="true">${esc(t(UI.groupBtn))}</span><p class="group-soon">${esc(t(DEBUG ? UI.groupSoon : UI.groupLater))}</p></div>`;
+  }
+  const FOLLOW = [
+    { who: "MetaMask", links: [
+      { name: "X", handle: "@MetaMask", url: "https://x.com/MetaMask", icon: '<path fill="currentColor" d="M17.8 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.3-8.3L1.9 3h6.4l4.4 5.8L17.8 3Zm-1.1 16.2h1.7L7.4 4.7H5.6l11.1 14.5Z"/>' },
+      { name: "Instagram", handle: "@metamask.io", url: "https://www.instagram.com/metamask.io/", icon: '<path fill="currentColor" d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4ZM17.3 5.5a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4ZM12 2c-2.7 0-3 0-4.1.1C4.3 2.2 2.2 4.3 2.1 7.9 2 9 2 9.3 2 12s0 3 .1 4.1c.1 3.6 2.2 5.7 5.8 5.8 1.1.1 1.4.1 4.1.1s3 0 4.1-.1c3.6-.1 5.7-2.2 5.8-5.8.1-1.1.1-1.4.1-4.1s0-3-.1-4.1c-.1-3.6-2.2-5.7-5.8-5.8C15 2 14.7 2 12 2Zm0 1.8c2.7 0 3 0 4 .1 2.6.1 3.9 1.4 4 4 .1 1 .1 1.3.1 4s0 3-.1 4c-.1 2.6-1.4 3.9-4 4-1 .1-1.3.1-4 .1s-3 0-4-.1c-2.6-.1-3.9-1.4-4-4-.1-1-.1-1.3-.1-4s0-3 .1-4c.1-2.6 1.4-3.9 4-4 1-.1 1.3-.1 4-.1Z"/>' },
+      { name: "TikTok", handle: "@metamask", url: "https://www.tiktok.com/@metamask", icon: '<path fill="currentColor" d="M16.6 2h-3.3v13.3a2.9 2.9 0 1 1-2.9-2.9c.3 0 .6 0 .9.1V9.1a6.3 6.3 0 1 0 5.3 6.2V8.6a7.6 7.6 0 0 0 4.4 1.4V6.7a4.4 4.4 0 0 1-4.4-4.4Z"/>' } ] },
+    { who: "Ana Westfal", links: [
+      { name: "X", handle: "@anawestfal", url: "https://x.com/anawestfal", icon: '<path fill="currentColor" d="M17.8 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.3-8.3L1.9 3h6.4l4.4 5.8L17.8 3Zm-1.1 16.2h1.7L7.4 4.7H5.6l11.1 14.5Z"/>' },
+      { name: "Instagram", handle: "@ana.westfal", url: "https://www.instagram.com/ana.westfal/", icon: '<path fill="currentColor" d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4ZM17.3 5.5a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4ZM12 2c-2.7 0-3 0-4.1.1C4.3 2.2 2.2 4.3 2.1 7.9 2 9 2 9.3 2 12s0 3 .1 4.1c.1 3.6 2.2 5.7 5.8 5.8 1.1.1 1.4.1 4.1.1s3 0 4.1-.1c3.6-.1 5.7-2.2 5.8-5.8.1-1.1.1-1.4.1-4.1s0-3-.1-4.1c-.1-3.6-2.2-5.7-5.8-5.8C15 2 14.7 2 12 2Zm0 1.8c2.7 0 3 0 4 .1 2.6.1 3.9 1.4 4 4 .1 1 .1 1.3.1 4s0 3-.1 4c-.1 2.6-1.4 3.9-4 4-1 .1-1.3.1-4 .1s-3 0-4-.1c-2.6-.1-3.9-1.4-4-4-.1-1-.1-1.3-.1-4s0-3 .1-4c.1-2.6 1.4-3.9 4-4 1-.1 1.3-.1 4-.1Z"/>' },
+      { name: "LinkedIn", handle: "Ana Westfal", url: "https://www.linkedin.com/in/ap-westfal/", icon: '<path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.5h4V21H3V9.5Zm6.5 0h3.8v1.6h.1c.5-1 1.8-2 3.7-2 4 0 4.7 2.6 4.7 6V21h-4v-5.2c0-1.2 0-2.9-1.8-2.9s-2 1.4-2 2.8V21h-4V9.5Z"/>' } ] }
+  ];
+  function renderFollow() {
+    app.innerHTML = `
+      <section class="card done follow" style="margin-top:28px">
+        <svg class="big-fox" viewBox="0 0 142 137" aria-hidden="true">${document.querySelector(".brand .fox").innerHTML}</svg>
+        <h2>${esc(t(UI.followTitle))}</h2>
+        <p class="intro" style="color:var(--ink)">${esc(t(UI.followText))}</p>
+        <div class="follow-groups">${FOLLOW.map(g => `<div class="follow-group"><p class="follow-who">${esc(g.who)}</p>
+          <div class="follow-links">${g.links.map(f => `<a class="follow-link" href="${f.url}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">${f.icon}</svg><span><b>${f.name}</b><small>${esc(f.handle)}</small></span><i aria-hidden="true">↗</i></a>`).join("")}</div></div>`).join("")}</div>
+        ${state.data.identity === "trader" ? chatHTML() : ""}
+        <button type="button" class="follow-back" data-act="unfollow">← ${esc(t(UI.followBack))}</button>
+      </section>`;
+  }
+  // traders/investidores: pedido de conversa sobre o produto (contato vai numa linha própria da planilha)
+  function chatHTML() {
+    const book = CFG.BOOKING_URL ? `<p class="chat-book">${esc(t(UI.chatBook))} <a href="${esc(CFG.BOOKING_URL)}" target="_blank" rel="noopener">${esc(t(UI.chatBookBtn))} ↗</a></p>` : "";
+    if (state.chatSent) return `<div class="chat-card is-done" role="status"><h3>${esc(t(UI.chatTitle))}</h3><p>${esc(t(UI.chatDone))}</p>${book}</div>`;
+    const d = state.data;
+    return `<form class="chat-card chat-form" novalidate>
+      <h3>${esc(t(UI.chatTitle))}</h3><p>${esc(t(UI.chatText))}</p>
+      <div class="row2">
+        <div class="field" data-f="chat_name"><label class="q" for="chat_name">${esc(t(UI.chatName))}<span class="req">*</span></label>
+          <input id="chat_name" name="chat_name" type="text" autocomplete="name" value="${esc(d.chat_name || "")}"><p class="err"></p></div>
+        <div class="field" data-f="chat_whatsapp"><label class="q" for="chat_whatsapp">WhatsApp<span class="req">*</span></label>
+          <input id="chat_whatsapp" name="chat_whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="${esc(state.lang === "es" ? "+54 9 11 1234-5678" : "+55 11 91234-5678")}" value="${esc(d.chat_whatsapp || "")}"><p class="err"></p></div>
+      </div>
+      <div class="field" data-f="chat_consent"><label class="chat-consent"><input type="checkbox" id="chat_consent"> <span>${esc(t(UI.chatConsent))}</span></label><p class="err"></p></div>
+      <button type="submit" class="btn btn-primary" ${state.sending ? "disabled" : ""}>${esc(state.sending ? t(UI.sending) : t(UI.chatBtn))} <span class="arrow">→</span></button>
+      ${book}
+    </form>`;
+  }
+  async function submitChat(form) {
+    const name = (form.querySelector("#chat_name").value || "").trim(), wa = (form.querySelector("#chat_whatsapp").value || "").trim(), ok = form.querySelector("#chat_consent").checked;
+    const dg = wa.replace(/\D/g, ""), bad = {};
+    if (!name) bad.chat_name = t(UI.required);
+    if (!wa) bad.chat_whatsapp = t(UI.required); else if (dg.length < 10 || dg.length > 15 || /[^\d\s()+.-]/.test(wa)) bad.chat_whatsapp = t(UI.badPhone);
+    if (!ok) bad.chat_consent = t(UI.required);
+    form.querySelectorAll(".field").forEach(f => { const m = bad[f.dataset.f] || ""; f.classList.toggle("invalid", !!m); const e = f.querySelector(".err"); if (e) e.textContent = m; });
+    if (Object.keys(bad).length) return;
+    const payload = {
+      submitted_at: new Date().toISOString(), form_language: state.lang.toUpperCase(),
+      source: params.get("ref") || params.get("utm_source") || "",
+      identity: labelPT(IDENTITY_STEP.fields[0], state.data.identity), track: "conversa_produto",
+      name, whatsapp: wa, whatsapp_link: waLink(wa, state.lang === "es" ? "ar" : "br"),   // sem código do país: PT assume Brasil, ES assume Argentina consent: "sim",
+      fox_name: foxName(params.get("fox")), ...foxSlots()
+    };
+    if (CFG.SUBMIT_URL) {
+      state.sending = true; render();
+      try { await fetch(CFG.SUBMIT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) }); state.chatSent = true; }
+      catch (e) { state.error = true; }
+      state.sending = false;
+    } else { console.info("[MetaMask Creators] modo de teste — conversa:", payload); state.chatSent = true; }
+    render();
+  }
+  function renderDone() {
+    if (!isCreator()) return renderFollow();
+    const contact = CFG.CONTACT_EMAIL ? `<p>${esc(t(UI.doneContact))} <a href="mailto:${esc(CFG.CONTACT_EMAIL)}">${esc(CFG.CONTACT_EMAIL)}</a></p>` : "";
+    const test = state.testPayload && DEBUG ? `<div class="testmode">${esc(t(UI.testMode))}<pre>${esc(JSON.stringify(state.testPayload, null, 2))}</pre></div>` : "";
+    app.innerHTML = `
+      <section class="card done" style="margin-top:28px">
+        <svg class="big-fox" viewBox="0 0 142 137" aria-hidden="true">${document.querySelector(".brand .fox").innerHTML}</svg>
+        <h2>${esc(t(UI.doneTitle))}</h2>
+        <p class="intro" style="color:var(--ink)">${esc(t(UI.doneText))}</p>
+        ${groupHTML()}
+        ${contact}${test}
+      </section>`;
+  }
+
+  /* -------------------------------------------------------------
+     Validação
+     ------------------------------------------------------------- */
+  function validateStep() {
+    const step = steps()[state.step];
+    let firstBad = null;
+    allFields(step).forEach(f => {
+      if (!visible(f)) return;
+      const el = app.querySelector(`[data-f="${f.id}"]`);
+      if (!el) return;
+      const v = state.data[f.id];
+      let msg = "";
+      if (f.type === "platforms") {
+        const p = v || {};
+        const keys = Object.keys(p);
+        if (!keys.length) msg = t(UI.chooseAtLeast);
+        else if (keys.some(k => !String(p[k].handle || "").trim() || !p[k].followers)) msg = t(UI.platMissing);
+      } else if (f.req) {
+        if (f.type === "checks") { if (!v || !v.length) msg = t(UI.chooseAtLeast); }
+        else if (f.type === "radio") { if (!v) msg = t(UI.chooseOne); }
+        else if (f.type === "consent") { if (!v) msg = t(UI.required); }
+        else if (!String(v || "").trim()) msg = t(UI.required);
+      }
+      if (!msg && f.type === "email" && v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v).trim())) msg = t(UI.badEmail);
+      if (!msg && f.type === "tel" && v) { const dg = String(v).replace(/\D/g, ""); if (dg.length < 10 || dg.length > 15 || /[^\d\s()+.-]/.test(String(v))) msg = t(UI.badPhone); }
+      el.classList.toggle("invalid", !!msg);
+      const e = el.querySelector(".err"); if (e) e.textContent = msg;
+      if (msg && !firstBad) firstBad = el;
+    });
+    if (firstBad) {
+      firstBad.scrollIntoView({ behavior: "smooth", block: "center" });
+      const focusable = firstBad.querySelector("input:not([disabled]), select, textarea");
+      if (focusable) setTimeout(() => focusable.focus({ preventScroll: true }), 250);
+    }
+    return !firstBad;
+  }
+
+  /* -------------------------------------------------------------
+     Montagem do payload (uma linha por inscrição na planilha, sempre em PT)
+     ------------------------------------------------------------- */
+  const FOLLOWER_RANK = { "lt5k": 0, "5-20k": 1, "20-100k": 2, "100-500k": 3, "500k-1m": 4, "1m+": 5 };
+  function tier(platforms) {
+    const ranks = Object.values(platforms || {}).map(p => FOLLOWER_RANK[p.followers] ?? -1);
+    const max = Math.max(-1, ...ranks);
+    if (max <= 1) return "micro (<20k)";
+    if (max <= 3) return "médio (20k–500k)";
+    return "grande (500k+)";
+  }
+  function labelPT(f, v) {
+    const opts = f.id === "main_platform" ? PLATFORMS : optsOf(f);
+    const find = (x) => (opts.find(op => op.v === x) || {}).pt || x;
+    return Array.isArray(v) ? v.map(find).join("; ") : find(v);
+  }
+  // kit de produção da pelúcia (igual ao ateliê da máquina): código -> nome que vai pra planilha
+  const FOX_KIT = {
+    hat: { cap: "Boné", beanie: "Gorro", crown: "Coroa" },
+    glasses: { sun: "Óculos de sol", round: "Óculos redondos" },
+    neck: { bandana: "Bandana", scarf: "Cachecol", bow: "Gravata borboleta" },
+    hand: { card: "Cartão MetaMask", phone: "Celular" }
+  };
+  const foxName = s => (s || "").replace(/[^\p{L}\p{N} -]/gu, "").replace(/ {2,}/g, " ").trim().slice(0, 12);
+  function foxSlots() {
+    const picked = (params.get("items") || "").split(",").map(x => x.trim());
+    const out = {};
+    Object.keys(FOX_KIT).forEach(slot => {
+      const code = picked.find(c => FOX_KIT[slot][c]);
+      out["fox_" + slot] = code ? FOX_KIT[slot][code] : "";
+    });
+    return out;
+  }
+  // link wa.me clicável na planilha; completa o código do país quando a pessoa não colocou
+  function waLink(v, country) {
+    const raw = String(v || "").trim(); let dg = raw.replace(/\D/g, "");
+    if (!dg) return "";
+    if (!raw.startsWith("+") && !dg.startsWith("00")) {
+      if (country === "br" && (dg.length === 10 || dg.length === 11)) dg = "55" + dg;
+      else if (country === "ar" && dg.length === 10) dg = "549" + dg;
+    }
+    return "https://wa.me/" + dg.replace(/^00/, "");
+  }
+  function buildPayload() {
+    const d = state.data;
+    const out = {
+      submitted_at: new Date().toISOString(),
+      form_language: state.lang.toUpperCase(),
+      source: params.get("ref") || params.get("utm_source") || "",
+      identity: "",
+      track: isCreator() ? "criador" : "seguir",
+      tier_auto: isCreator() ? tier(d.platforms) : "",
+      fox_name: foxName(params.get("fox")),
+      ...foxSlots(),
+      fox_items: params.get("items") || "",
+      share_action: params.get("shared") || ""
+    };
+    steps().forEach(step => allFields(step).forEach(f => {
+      if (f.type === "platforms") {
+        PLATFORMS.forEach(p => {
+          const row = (d.platforms || {})[p.v];
+          out[`${p.v}_handle`] = row ? row.handle : "";
+          out[`${p.v}_followers`] = row ? (FOLLOWERS.find(x => x.v === row.followers) || {}).pt || "" : "";
+        });
+        return;
+      }
+      if (!visible(f)) { out[f.id] = ""; return; }
+      const v = d[f.id];
+      if (f.type === "consent") out[f.id] = v ? "sim" : "não";
+      else if (["radio", "checks", "select"].includes(f.type)) out[f.id] = v ? labelPT(f, v) : "";
+      else out[f.id] = (v || "").toString().trim();
+    }));
+    out.whatsapp_link = waLink(d.whatsapp, d.country);
+    return out;
+  }
+
+  async function submit() {
+    const payload = buildPayload();
+    if (!CFG.SUBMIT_URL) {
+      console.info("[MetaMask Creators] modo de teste — payload:", payload);
+      state.testPayload = payload; state.done = true; clearDraft(); render(); window.scrollTo(0, 0); return;
+    }
+    state.sending = true; state.error = false; render();
+    try {
+      await fetch(CFG.SUBMIT_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
+      state.done = true; clearDraft();
+    } catch (e) {
+      state.error = true;
+    }
+    state.sending = false; render(); window.scrollTo(0, 0);
+  }
+
+  /* -------------------------------------------------------------
+     Eventos
+     ------------------------------------------------------------- */
+  document.querySelector(".lang").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-lang]"); if (!b) return;
+    state.lang = b.dataset.lang; state.data.__langSet = true; save(); render();
+  });
+
+  app.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    const act = b.dataset.act;
+    if (act === "start") { state.step = 0; }
+    if (act === "resume") { state.step = Math.min(state.savedStep || 0, steps().length - 1); }
+    if (act === "restart") { const ls = state.data.__langSet; state.data = ls ? { __langSet: true } : {}; clearDraft(); state.step = 0; }
+    if (act === "back") { state.error = false; state.step -= 1; }
+    if (act === "unfollow") { state.done = false; state.testPayload = null; state.chatSent = false; state.data.identity = "creator"; state.step = 0; }
+    save(); render(); window.scrollTo({ top: 0 });
+  });
+
+  app.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (e.target.classList.contains("chat-form")) return submitChat(e.target);
+    if (!validateStep()) return;
+    if (state.step < steps().length - 1) { state.step += 1; save(); render(); window.scrollTo({ top: 0 }); }
+    else submit();
+  });
+
+  // Texto: atualiza sem re-render (mantém o foco)
+  app.addEventListener("input", (e) => {
+    const el = e.target;
+    if (el.dataset.plat) {
+      const p = state.data.platforms = state.data.platforms || {};
+      if (p[el.dataset.plat]) p[el.dataset.plat][el.dataset.k] = el.value;
+    } else if (el.name && (el.tagName === "TEXTAREA" || ["text", "email", "url", "tel"].includes(el.type))) {
+      state.data[el.name] = el.value;
+    } else return;
+    const field = el.closest(".field"); if (field && field.classList.contains("invalid")) field.classList.remove("invalid");
+    save();
+  });
+
+  // Escolhas: atualiza e re-renderiza (campos condicionais)
+  app.addEventListener("change", (e) => {
+    const el = e.target;
+    if (el.dataset.plat && el.tagName === "SELECT") {
+      const p = state.data.platforms || {}; if (p[el.dataset.plat]) p[el.dataset.plat].followers = el.value; save();
+      const field = el.closest(".field"); if (field) field.classList.remove("invalid");
+      return;
+    }
+    if (!el.name) return;
+    const name = el.name;
+    if (name === "platforms") {
+      const p = state.data.platforms = state.data.platforms || {};
+      if (el.checked) p[el.value] = p[el.value] || { handle: "", followers: "" };
+      else { delete p[el.value]; if (state.data.main_platform === el.value) state.data.main_platform = ""; }
+    } else if (el.type === "checkbox" && name === "consent") {
+      state.data.consent = el.checked;
+    } else if (el.type === "checkbox") {
+      const arr = new Set(state.data[name] || []);
+      el.checked ? arr.add(el.value) : arr.delete(el.value);
+      state.data[name] = [...arr];
+    } else if (el.type === "radio" || el.tagName === "SELECT") {
+      state.data[name] = el.value;
+    } else return;
+    save();
+    const y = window.scrollY;
+    render();
+    window.scrollTo(0, y);
+    const again = app.querySelector(`[name="${name}"][value="${CSS.escape(el.value)}"]`) || app.querySelector(`[name="${name}"]`);
+    if (again) again.focus({ preventScroll: true });
+  });
+
+  load();
+  render();
+})();
+</script>
+</body>
+</html>
