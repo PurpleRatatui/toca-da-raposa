@@ -1229,7 +1229,7 @@
     const slug = h.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 20);
     return slug || "criador";
   }
-  function inviteLink() { return new URL("./", location.href).href + "?ref=" + encodeURIComponent(myRef()); }
+  function inviteLink() { return new URL("./", location.href).href + "?ref=" + encodeURIComponent(myRef()) + (state.lang !== "pt" ? "&lang=" + state.lang : ""); }
   function inviteHTML() {
     const link = inviteLink(), msg = t(UI.inviteMsg) + " " + link;
     return `<div class="invite">
