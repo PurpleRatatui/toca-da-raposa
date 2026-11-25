@@ -2278,7 +2278,7 @@ function buildStudio(){
         <div class="stu-act">
           <button type="button" class="stu-btn pri" data-a="share">${T.share} <span aria-hidden="true">→</span></button>
           <button type="button" class="stu-btn ghost" data-a="random">${T.random}</button>
-          <div class="stu-alt">${T.or}: <button type="button" data-a="download">${T.download}</button><button type="button" data-a="x">${T.postX}</button><button type="button" data-a="copy">${T.copy}</button><span class="stu-note" role="status"></span></div>
+          <div class="stu-alt">${T.or}: <button type="button" data-a="download">${T.download}</button><button type="button" data-a="copy">${T.copy}</button><span class="stu-note" role="status"></span></div>
         </div>
         <div class="stu-done" role="status">
           <h3>${T.doneT}</h3><p>${T.doneP}</p>
@@ -2322,10 +2322,6 @@ function buildStudio(){
       return;
     }
     if (a === 'download'){ download(await file()); studio.shared = 'download'; return renderStudio(); }
-    if (a === 'x'){
-      window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(T.shareText) + '&url=' + encodeURIComponent(shareURL()), '_blank', 'noopener');
-      studio.shared = 'x'; return renderStudio();
-    }
     if (a === 'copy'){
       try { await navigator.clipboard.writeText(shareURL()); note.textContent = T.copied; } catch (err) { note.textContent = shareURL(); }
       studio.shared = 'copy'; return renderStudio();
