@@ -16,7 +16,7 @@
      (veja "Como receber as respostas.md"). Vazio = modo de teste.
      ============================================================ */
   window.MM_FORM_CONFIG = {
-    SUBMIT_URL: "",          // ex.: "https://script.google.com/macros/s/AKfy.../exec"
+    SUBMIT_URL: "https://script.google.com/macros/s/AKfycbzDUxKMH1vlwwEdOqmAE34l6RXhe0nXRyXPqXJI1l-vVl2hBfVHAyMPIKznztD_GrI/exec",          // ex.: "https://script.google.com/macros/s/AKfy.../exec"
     CONTACT_EMAIL: "",       // opcional: aparece na tela final
     WHATSAPP_URL: "",        // link do grupo Toca da Raposa no WhatsApp (ex.: "https://chat.whatsapp.com/...")
     MACHINE_URL: "toca-da-raposa.html",  // página da máquina (botão "Voltar à máquina")
@@ -1196,7 +1196,7 @@
       submitted_at: new Date().toISOString(), form_language: state.lang.toUpperCase(),
       source: params.get("ref") || params.get("utm_source") || "",
       identity: labelPT(IDENTITY_STEP.fields[0], state.data.identity), track: "conversa_produto",
-      name, whatsapp: wa, whatsapp_link: waLink(wa, state.lang === "es" ? "ar" : "br"),   // sem código do país: PT assume Brasil, ES assume Argentina consent: "sim",
+      name, whatsapp: wa, whatsapp_link: waLink(wa, state.lang === "es" ? "ar" : "br"), consent: "sim",   // sem código do país: PT assume Brasil, ES assume Argentina
       fox_name: foxName(params.get("fox")), ...foxSlots()
     };
     if (CFG.SUBMIT_URL) {
