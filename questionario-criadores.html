@@ -916,7 +916,7 @@
     } catch (e) { /* storage indisponível: segue sem rascunho */ }
     const qp = params.get("lang");
     if (LANGS.includes(qp)) state.lang = qp;
-    else if (!state.data.__langSet && /^es/i.test(navigator.language || "")) state.lang = "es";
+    else if (!state.data.__langSet) state.lang = ((navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || '']).map(l => String(l).slice(0,2).toLowerCase()).find(l => ['pt','es','en'].includes(l)) || 'pt');   // sem ?lang: idioma do navegador de quem abre
   }
   function save() {
     try { localStorage.setItem(STORE_KEY, JSON.stringify({ data: state.data, step: Math.max(state.step, 0), lang: state.lang })); } catch (e) {}
@@ -1229,7 +1229,7 @@
     const slug = h.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "").slice(0, 20);
     return slug || "criador";
   }
-  function inviteLink() { return new URL("./", location.href).href + "?ref=" + encodeURIComponent(myRef()) + (state.lang !== "pt" ? "&lang=" + state.lang : ""); }
+  function inviteLink() { return new URL("./", location.href).href + "?ref=" + encodeURIComponent(myRef()) + "&lang=" + state.lang; }
   function inviteHTML() {
     const link = inviteLink(), msg = t(UI.inviteMsg) + " " + link;
     return `<div class="invite">

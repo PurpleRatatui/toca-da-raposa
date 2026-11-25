@@ -666,9 +666,9 @@ function mountKeypad(spec){
    - the 3rd token is the lucky one: the claw grips firmly, so most people win by then;
      if all 3 miss, a friendly note still opens the form (the Den isn't about luck) */
 
-/* ---------- language (?lang=pt|es|en; Spanish browsers default to es) ---------- */
+/* ---------- language (?lang=pt|es|en wins; otherwise the visitor's browser language, pt as fallback) ---------- */
 const TQ = new URLSearchParams(location.search);
-const LANG = ['pt','es','en'].includes(TQ.get('lang')) ? TQ.get('lang') : (/^es/i.test(navigator.language || '') ? 'es' : 'pt');
+const LANG = ['pt','es','en'].includes(TQ.get('lang')) ? TQ.get('lang') : ((navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || '']).map(l => String(l).slice(0,2).toLowerCase()).find(l => ['pt','es','en'].includes(l)) || 'pt');
 const TXT = {
   pt: { sign:'TOCA DA RAPOSA', side:'RAPOSAS', credit:'CREDITO', time:'TEMPO', good:'BOA', luck:'SORTE', insert:'INSIRA', coin:'FICHA',
         win1:'VOCE', win2:'PEGOU', close1:'QUASE', close2:'LA', try1:'TENTE', try2:'DE NOVO', last1:'ULTIMA', last2:'CHANCE',
@@ -2114,7 +2114,7 @@ const stEsc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt
 function bgInk(bg){ return ['#3d065f', '#ff5c16'].includes(bg) ? '#ffffff' : '#121314'; }
 function shareURL(){
   const base = STUDIO_CFG.SHARE_URL || (location.origin + location.pathname);
-  return base + (base.includes('?') ? '&' : '?') + 'ref=share' + (LANG !== 'pt' ? '&lang=' + LANG : '');
+  return base + (base.includes('?') ? '&' : '?') + 'ref=share&lang=' + LANG;
 }
 function cardSVG(o){
   const T = ST_TXT[LANG], bg = o.bg || ST_BGS[0], ink = bgInk(bg);
