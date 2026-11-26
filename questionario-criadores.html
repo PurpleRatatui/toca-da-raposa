@@ -595,6 +595,7 @@
     guideBack: { pt: "Que raposa linda! Agora quero te conhecer.", es: "¡Qué lindo zorro! Ahora quiero conocerte.", en: "Great fox! Now I'd love to get to know you." },
     guideStep: {
       identity:   { pt: "Primeiro, me conta: como você se identifica?", es: "Primero, contame: ¿cómo te identificás?", en: "First, tell me: how do you identify?" },
+      contact:    { pt: "Massa! Me deixa seu contato pra gente se falar.", es: "¡Genial! Dejame tu contacto así hablamos.", en: "Nice! Leave me your contact so we can talk." },
       about:      { pt: "Prazer! Agora o básico, pra eu saber com quem tô falando.", es: "¡Un gusto! Ahora lo básico, para saber con quién hablo.", en: "Nice to meet you! Now the basics, so I know who I'm talking to." },
       audience:   { pt: "Me mostra onde sua comunidade está. Tamanho não é pré-requisito.", es: "Mostrame dónde está tu comunidad. El tamaño no es requisito.", en: "Show me where your community lives. Size isn't a requirement." },
       content:    { pt: "Agora sobre o seu conteúdo. Não tem resposta certa.", es: "Ahora sobre tu contenido. No hay respuesta correcta.", en: "Now about your content. There's no right answer." },
@@ -622,6 +623,11 @@
       pt: "Quero ouvir de quem opera e investe: como você usa a MetaMask hoje (ou por que não usa). Deixa seu contato que eu te chamo pra marcar uma conversa rápida.",
       es: "Quiero escuchar a quienes operan e invierten: cómo usás MetaMask hoy (o por qué no la usás). Dejá tu contacto y te escribo para coordinar una charla corta.",
       en: "I want to hear from people who trade and invest: how you use MetaMask today (or why you don't). Leave your contact and I'll reach out to book a quick chat."
+    },
+    chatTextKnown: {
+      pt: "Quero ouvir de quem opera e investe: como você usa a MetaMask hoje (ou por que não usa). Topa? Toca no botão que eu te chamo no WhatsApp pra marcar uma conversa rápida.",
+      es: "Quiero escuchar a quienes operan e invierten: cómo usás MetaMask hoy (o por qué no la usás). ¿Te sumás? Tocá el botón y te escribo por WhatsApp para coordinar una charla corta.",
+      en: "I want to hear from people who trade and invest: how you use MetaMask today (or why you don't). Up for it? Tap the button and I'll message you on WhatsApp to book a quick chat."
     },
     chatName: { pt: "Nome", es: "Nombre", en: "Name" },
     chatConsent: { pt: "Autorizo a MetaMask a usar esses dados só para marcar essa conversa.", es: "Autorizo a MetaMask a usar estos datos solo para coordinar esta charla.", en: "I allow MetaMask to use this data only to schedule this chat." },
@@ -660,6 +666,7 @@
     back: { pt: "Voltar", es: "Volver", en: "Back" },
     next: { pt: "Continuar", es: "Continuar", en: "Continue" },
     submit: { pt: "Enviar inscrição", es: "Enviar postulación", en: "Submit application" },
+    send: { pt: "Enviar", es: "Enviar", en: "Send" },
     sending: { pt: "Enviando…", es: "Enviando…", en: "Sending…" },
     saved: { pt: "Rascunho salvo neste navegador", es: "Borrador guardado en este navegador", en: "Draft saved in this browser" },
     required: { pt: "Campo obrigatório", es: "Campo obligatorio", en: "Required" },
@@ -898,9 +905,28 @@
       { id: "identity_other", type: "text", req: true, label: { pt: "Qual?", es: "¿Cuál?", en: "Which?" }, showIf: d => d.identity === "other" }
     ]
   };
-  // quem não é criador(a) responde só a identidade e vê a tela "Siga a Ana" (foco inicial: criadores)
+  // quem não é criador(a) responde a identidade, deixa um contato curto e vê a tela "Siga a Ana" (foco inicial: criadores)
+  const CONTACT_STEP = {
+    id: "contact",
+    title: { pt: "Seu contato", es: "Tu contacto", en: "Your contact" },
+    intro: { pt: "Rapidinho, pra gente saber quem você é e te chamar quando fizer sentido.", es: "Rapidito, para saber quién sos y escribirte cuando tenga sentido.", en: "Quick one, so we know who you are and can reach out when it makes sense." },
+    fields: [
+      { id: "name", type: "text", req: true, label: { pt: "Nome", es: "Nombre", en: "Name" }, ac: "name" },
+      { id: "whatsapp", type: "tel", req: true, label: { pt: "WhatsApp", es: "WhatsApp", en: "WhatsApp" }, ac: "tel",
+        ph: { pt: "+55 11 91234-5678", es: "+54 9 11 1234-5678", en: "+55 11 91234-5678" },
+        help: { pt: "Com código do país e DDD.", es: "Con código de país y de área.", en: "With country and area code." } },
+      { id: "main_handle", type: "text", label: { pt: "Seu @ principal (X, Instagram ou Telegram)", es: "Tu @ principal (X, Instagram o Telegram)", en: "Your main @ (X, Instagram or Telegram)" }, ph: "@" },
+      { id: "about_you", type: "textarea", label: { pt: "Conta rapidinho o que você faz (opcional)", es: "Contá rapidito a qué te dedicás (opcional)", en: "Tell us briefly what you do (optional)" } },
+      { id: "consent", type: "consent", req: true,
+        label: {
+          pt: "Autorizo a MetaMask a usar estes dados apenas para entrar em contato comigo sobre a MetaMask e a Toca da Raposa, conforme a LGPD.",
+          es: "Autorizo a MetaMask a usar estos datos solo para contactarme sobre MetaMask y la Guarida del Zorro, conforme a la Ley 25.326 de Protección de Datos Personales.",
+          en: "I authorize MetaMask to use this data only to contact me about MetaMask and the Fox Den, under Brazil's LGPD and Argentina's Personal Data Protection Law 25.326."
+        } }
+    ]
+  };
   const isCreator = () => state.data.identity === "creator" || !state.data.identity;
-  function steps() { return [IDENTITY_STEP, ...(isCreator() ? CREATOR_STEPS : [])]; }
+  function steps() { return [IDENTITY_STEP, ...(isCreator() ? CREATOR_STEPS : [CONTACT_STEP])]; }
 
   /* -------------------------------------------------------------
      Estado
@@ -1130,7 +1156,7 @@
           <button type="button" class="btn btn-ghost" data-act="back">← ${esc(t(UI.back))}</button>
           <span class="saved spacer" style="text-align:center">${esc(t(UI.saved))}</span>
           <button type="submit" class="btn ${last ? "btn-primary" : "btn-ink"}" ${state.sending ? "disabled" : ""}>
-            ${esc(state.sending ? t(UI.sending) : last && isCreator() ? t(UI.submit) : t(UI.next))} ${state.sending ? "" : '<span class="arrow">→</span>'}
+            ${esc(state.sending ? t(UI.sending) : last && isCreator() ? t(UI.submit) : last ? t(UI.send) : t(UI.next))} ${state.sending ? "" : '<span class="arrow">→</span>'}
           </button>
         </div>
       </form>`;
@@ -1171,6 +1197,11 @@
     const book = CFG.BOOKING_URL ? `<p class="chat-book">${esc(t(UI.chatBook))} <a href="${esc(CFG.BOOKING_URL)}" target="_blank" rel="noopener">${esc(t(UI.chatBookBtn))} ↗</a></p>` : "";
     if (state.chatSent) return `<div class="chat-card is-done" role="status"><h3>${esc(t(UI.chatTitle))}</h3><p>${esc(t(UI.chatDone))}</p>${book}</div>`;
     const d = state.data;
+    if (d.name && d.whatsapp) return `<form class="chat-card chat-form" novalidate>
+      <h3>${esc(t(UI.chatTitle))}</h3><p>${esc(t(UI.chatTextKnown))}</p>
+      <button type="submit" class="btn btn-primary" ${state.sending ? "disabled" : ""}>${esc(state.sending ? t(UI.sending) : t(UI.chatBtn))} <span class="arrow">→</span></button>
+      ${book}
+    </form>`;   // contato já veio na etapa "Seu contato": um toque marca o pedido de conversa
     return `<form class="chat-card chat-form" novalidate>
       <h3>${esc(t(UI.chatTitle))}</h3><p>${esc(t(UI.chatText))}</p>
       <div class="row2">
@@ -1185,7 +1216,8 @@
     </form>`;
   }
   async function submitChat(form) {
-    const name = (form.querySelector("#chat_name").value || "").trim(), wa = (form.querySelector("#chat_whatsapp").value || "").trim(), ok = form.querySelector("#chat_consent").checked;
+    const inp = (sel) => form.querySelector(sel);
+    const name = (inp("#chat_name") ? inp("#chat_name").value : state.data.name || "").trim(), wa = (inp("#chat_whatsapp") ? inp("#chat_whatsapp").value : state.data.whatsapp || "").trim(), ok = inp("#chat_consent") ? inp("#chat_consent").checked : true;
     const dg = wa.replace(/\D/g, ""), bad = {};
     if (!name) bad.chat_name = t(UI.required);
     if (!wa) bad.chat_whatsapp = t(UI.required); else if (dg.length < 10 || dg.length > 15 || /[^\d\s()+.-]/.test(wa)) bad.chat_whatsapp = t(UI.badPhone);
@@ -1353,7 +1385,7 @@
       else if (["radio", "checks", "select"].includes(f.type)) out[f.id] = v ? labelPT(f, v) : "";
       else out[f.id] = (v || "").toString().trim();
     }));
-    out.whatsapp_link = waLink(d.whatsapp, d.country);
+    out.whatsapp_link = waLink(d.whatsapp, d.country || (state.lang === "es" ? "ar" : "br"));   // sem país (não-criadores): PT assume Brasil, ES assume Argentina
     if (isCreator()) out.my_ref = myRef();   // código do link de indicação deste criador
     return out;
   }
